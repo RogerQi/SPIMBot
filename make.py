@@ -5,6 +5,7 @@ import sys
 
 dependency_dir = ["./LIB/"]
 assembled_file_path = "./spimbot.s"
+qtspimbot_command_line = "QtSpimbot -file spimbot.s -mapseed 233"
 
 def print_help():
     print("Example Usage: python {0} test_puzzle_solver".format(sys.argv[0]))
@@ -15,7 +16,7 @@ def main():
         print("Please run the script in Python3!")
         sys.exit(1)
     try:
-        assert len(sys.argv) == 2
+        assert len(sys.argv) == 2# or (len(sys.argv) == 3 and sys.argv[2] == "run")
         assert sys.argv[1].endswith(".s")
     except AssertionError:
         print("Malformed Parameters!")
@@ -34,12 +35,15 @@ def main():
     assembled_file_content += "\r\n\r\n#/***************Start Lib File***************/\r\n"
 
     for lib_file_path in visible_libs:
+        print("Processing: {0}".format(lib_file_path))
         with open(lib_file_path) as f:
             assembled_file_content += f.read()
 
     with open(assembled_file_path, "w") as f:
         f.write(assembled_file_content)
 
+    # if len(sys.argv) == 3: #assertion asserts if length is three, then user wants to run the program for testing
+    #     os.popen()
     print("Finished!")
 
 if __name__ == '__main__':
