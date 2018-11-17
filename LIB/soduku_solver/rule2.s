@@ -1,0 +1,2 @@
+.text
+# .globl rule2
