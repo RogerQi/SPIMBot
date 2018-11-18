@@ -49,4 +49,7 @@
 #     return changed;
 # }
 
-# .globl rule2
+.globl rule2
+rule2:
+    li $v0, 0 #do nothing for now
+    jr $ra

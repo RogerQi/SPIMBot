@@ -1,7 +1,7 @@
 # SPIMBot
 ## Important Numbers
 
-* Average Cycles required to solve soduku puzzle: to be measured
+* (rule1 only) Average Cycles required to solve soduku puzzle: : 650k cycles/38 keys per game
 * Size of the map: 30 by 30, each cell contains info about surrounding walls. So we use a 61 by 61 2D binary array to represent the map.
 * Supercorn: costs 1 key and gives 1 point
 * Treasure chest: costs 2 keys and gives 5 and reveal surrounding 7x7 area

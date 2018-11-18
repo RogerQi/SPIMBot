@@ -17,4 +17,4 @@ how:
 # Actual rule to make the targets
 qtspimbot_run:
 	python3 make.py ${TARGET_MAIN_FILE}
-	QtSpimbot -file spimbot.s -mapseed 233 -debug -drawcycles 100
+	QtSpimbot -file spimbot.s -mapseed 233 -debug

@@ -46,13 +46,43 @@ REQUEST_PUZZLE_ACK      = 0xffff00d8
 #};
 .data
 
+#flags
+puzzle_request_flag: #1 - waiting for IO to finish; 0 - data looks good
+.word 0
+
 #Insert whatever static memory you need here
+.align 4 #note that we can't use double buffer or circular buffer (multiple buffer in general)
+soduku_buffer:      .word 0:511 #512 bytes
 
 .text
 main:
-	# Insert code here
-    jr      $ra                         #ret
+	# START SETTING UP INTERRUPTS
+	li $t0, REQUEST_PUZZLE_INT_MASK
+	# or $t0, $t0, TIMER_INT_MASK
+	or $t0, $t0, 1 #global interrupt enable
+	mtc0 $t0, $12 #write to status register
+	# END SETTING UP INTERRUPTS
 
+puzzle_solve_loop: #infinite loop
+	la $t0, puzzle_request_flag
+	li $t1, 1
+	sw $t1, 0($t0)
+	la $t0, soduku_buffer
+	sw $t0, REQUEST_PUZZLE($zero)
+	la $t0, puzzle_request_flag
+
+puzzle_solve_loop_wait:
+	lw $t1, 0($t0) #if flag is zero, then we can proceed
+	bne $t1, $zero, puzzle_solve_loop_wait
+
+puzzle_solve_loop_call_solver:
+	#the puzzle has been successfully written to the designated static memory address
+	la $a0, soduku_buffer
+	jal soduku_solver
+	#now we can suppose the puzzle has already been solved
+	la $t0, soduku_buffer
+	sw $t0, SUBMIT_SOLUTION($zero)
+	j puzzle_solve_loop
 
 # Kernel Text
 .kdata
@@ -102,8 +132,10 @@ bonk_interrupt:
         j       interrupt_dispatch    # see if other interrupts are waiting
 
 request_puzzle_interrupt:
-	sw	$v0, REQUEST_PUZZLE_ACK 	#acknowledge interrupt
-	j	interrupt_dispatch	 # see if other interrupts are waiting
+	la $t0, puzzle_request_flag
+	sw $zero, 0($t0)
+	sw $a1, REQUEST_PUZZLE_ACK($zero)
+	j	interrupt_dispatch
 
 timer_interrupt:
         sw       $v0, TIMER_ACK        # acknowledge interrupt
