@@ -52,7 +52,7 @@ puzzle_request_flag: #1 - waiting for IO to finish; 0 - data looks good
 
 #Insert whatever static memory you need here
 .align 4 #note that we can't use double buffer or circular buffer (multiple buffer in general)
-soduku_buffer:      .word 0:511 #512 bytes
+sudoku_buffer:      .word 0:511 #512 bytes
 
 .text
 main:
@@ -67,7 +67,7 @@ puzzle_solve_loop: #infinite loop
 	la $t0, puzzle_request_flag
 	li $t1, 1
 	sw $t1, 0($t0)
-	la $t0, soduku_buffer
+	la $t0, sudoku_buffer
 	sw $t0, REQUEST_PUZZLE($zero)
 	la $t0, puzzle_request_flag
 
@@ -77,10 +77,10 @@ puzzle_solve_loop_wait:
 
 puzzle_solve_loop_call_solver:
 	#the puzzle has been successfully written to the designated static memory address
-	la $a0, soduku_buffer
-	jal soduku_solver
+	la $a0, sudoku_buffer
+	jal sudoku_solver
 	#now we can suppose the puzzle has already been solved
-	la $t0, soduku_buffer
+	la $t0, sudoku_buffer
 	sw $t0, SUBMIT_SOLUTION($zero)
 	j puzzle_solve_loop
 

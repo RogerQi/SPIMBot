@@ -49,7 +49,7 @@ def main():
 
     # if len(sys.argv) == 3: #assertion asserts if length is three, then user wants to run the program for testing
     #     os.popen()
-    print("Finished!")
+    print("Preprocessing finished!")
 
 if __name__ == '__main__':
     main()
