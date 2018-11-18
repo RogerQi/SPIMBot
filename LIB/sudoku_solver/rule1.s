@@ -77,7 +77,6 @@ rule1_j_loop:
     mul $t1, $s2, 2
     add $t0, $t0, $t1 #offset
     add $t0, $t0, $s3 #ptr to board[i][j]
-    li $s4, 0
     lhu $s4, 0($t0) #s4: value
     move $a0, $s4
     jal has_single_bit_set
