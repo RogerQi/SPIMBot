@@ -33,8 +33,8 @@ def get_struct_str(printed_map, cell_x, cell_y):
     return ret_str
 
 def main(file_path = "map.txt"):
-    print_str = ''
-    print_str += "void make_map(maze_map allocated_struct) {\r\n    maze_cell cur_cell;\r\n    "
+    print_str = '#include "make_map.h"\r\n\r\n'
+    print_str += "void make_map(maze_map* allocated_struct) {\r\n    maze_cell cur_cell;\r\n    "
     cell_coordinates = [(i, j) for i in range(60) for j in range(60) if i % 2 == 1 and j % 2 == 1]
     with open("map.txt") as f:
         printed_map = f.readlines()
@@ -42,7 +42,7 @@ def main(file_path = "map.txt"):
     for x, y in cell_coordinates:
         print_str += '\r\n'
         print_str += get_struct_str(printed_map, x, y)
-        print_str += "    allocated_struct[{0}][{1}] = cur_cell;\r\n".format(int(x / 2), int(y / 2)) #ensure it works correctly in python3
+        print_str += "    allocated_struct->map[{0}][{1}] = cur_cell;\r\n".format(int(x / 2), int(y / 2)) #ensure it works correctly in python3
 
     print_str += '}'
     print(print_str)
