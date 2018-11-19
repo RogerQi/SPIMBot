@@ -16,5 +16,5 @@ how:
 
 # Actual rule to make the targets
 qtspimbot_run:
-	python3 make.py ${TARGET_MAIN_FILE}
+	python3 ./tool/assembler.py ${TARGET_MAIN_FILE}
 	QtSpimbot -file spimbot.s -mapseed 233 -debug -prof_file profile.txt
