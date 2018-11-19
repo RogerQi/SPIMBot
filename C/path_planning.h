@@ -13,6 +13,6 @@
  * @param command_buffer: pointer to command buffer (e.g. EAST SOUTH STOP), which is terminated with a STOP
  * @param target_point: an int array of LENGTH 2 (x, y) in cell coordinate (spimbot_x / 10, spimbot_y / 10)
  */
-typedef void (*path_planning)(maze_map current_map, int* command_buffer, int* target_point);
+typedef void (*path_planning)(maze_map* current_map, int* command_buffer, int* target_point);
 
 #endif
