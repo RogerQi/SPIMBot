@@ -52,11 +52,13 @@ void bfs(maze_map* current_map, int* target_point) {
     int queue_ptr = -1;
     int ava_spot_ptr = 1;
     queue[0] = current_bot_y * 30 + current_bot_x;
+    visited_mark[queue[0]] = 1;
     //prv_pos[queue[0]] = -1;
     //we dont need this line bc it's inited to be so
 
     while (1) {
         ++queue_ptr;
+        // printf("queue_ptr: %d\n", queue_ptr);
         // if queue > end_ptr, we should end. but technically that should not happen.
         int current_node = queue[queue_ptr];
         //printf("current_node: %d\n", current_node);
@@ -64,7 +66,6 @@ void bfs(maze_map* current_map, int* target_point) {
         // if (visited_mark[current_node]) {
         //     continue;
         // }
-        visited_mark[current_node] = 1;
         int node_x = current_node % 30;
         int node_y = current_node / 30;
         //printf("cur x: %d\ncur y: %d\n", node_x, node_y);
@@ -105,6 +106,7 @@ void bfs(maze_map* current_map, int* target_point) {
             int next_pos = node_y * 30 + node_x + 1;
             //printf("E pos: %d\n", next_pos);
             if (next_pos / 30 == node_y && !(visited_mark[next_pos])) {
+                visited_mark[next_pos] = 1; //mark
                 queue[ava_spot_ptr++] = next_pos;
                 prv_pos[next_pos] = current_node;
             }
@@ -112,6 +114,7 @@ void bfs(maze_map* current_map, int* target_point) {
         if (current_map->map[node_y][node_x].w_open) {
             int next_pos = node_y* 30 + node_x - 1;
             if (next_pos / 30 == node_y && !(visited_mark[next_pos])) {
+                visited_mark[next_pos] = 1;
                 queue[ava_spot_ptr++] = next_pos;
                 prv_pos[next_pos] = current_node;
             }
@@ -119,6 +122,7 @@ void bfs(maze_map* current_map, int* target_point) {
         if (current_map->map[node_y][node_x].n_open) {
             int next_pos = node_y * 30 + node_x - 30;
             if (next_pos >= 0 && !(visited_mark[next_pos])) {
+                visited_mark[next_pos] = 1;
                 queue[ava_spot_ptr++] = next_pos;
                 prv_pos[next_pos] = current_node;
             }
@@ -126,6 +130,7 @@ void bfs(maze_map* current_map, int* target_point) {
         if (current_map->map[node_y][node_x].s_open) {
             int next_pos = node_y * 30 + node_x + 30;
             if (next_pos < MAXIMUM_NODE_NUM && !(visited_mark[next_pos])) {
+                visited_mark[next_pos] = 1;
                 queue[ava_spot_ptr++] = next_pos;
                 prv_pos[next_pos] = current_node;
                 //printf("Setting prv_pos[%d] = %d\n", next_pos, current_node);

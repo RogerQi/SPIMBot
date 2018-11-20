@@ -24,8 +24,8 @@ int main(void) {
     printf("Size of maze_cell: %lu\n", sizeof(maze_cell));
 
     int target_pt[2];
-    target_pt[0] = 15;
-    target_pt[1] = 15;
+    target_pt[0] = 7;
+    target_pt[1] = 1;
     printf("Prepare to bfs\n");
     bfs(&my_map, target_pt);
     int cnt = 0;
