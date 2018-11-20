@@ -20,6 +20,9 @@ int main(void) {
         printf("North is closed!\n");
     }
 
+    printf("Size of maze_map: %lu\n", sizeof(maze_map));
+    printf("Size of maze_cell: %lu\n", sizeof(maze_cell));
+
     int target_pt[2];
     target_pt[0] = 15;
     target_pt[1] = 15;

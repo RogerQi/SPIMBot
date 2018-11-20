@@ -1,6 +1,26 @@
 #include "path_planning.h"
 #include <stdio.h>
 
+void map_preprocess(maze_map* raw_map, maze_map* processed_map) {
+    int i = 0;
+    for (; i < 900; ++i) {
+        // In MIPS, this reduces to raw_map->[i] (why?)
+        char e_open = raw_map->map[i / 30][i % 30].e_open;
+        char w_open = raw_map->map[i / 30][i % 30].w_open;
+        char n_open = raw_map->map[i / 30][i % 30].n_open;
+        char s_open = raw_map->map[i / 30][i % 30].s_open;
+        if (e_open | w_open | n_open | s_open) {
+            //nothing
+        } else {
+            processed_map->map[i / 30][i % 30].e_open = 1;
+            processed_map->map[i / 30][i % 30].w_open = 1;
+            processed_map->map[i / 30][i % 30].n_open = 1;
+            processed_map->map[i / 30][i % 30].s_open = 1;
+        }
+    }
+    return;
+}
+
 void refresh_pp(void) {
     int i = 0;
     for (; i < MAXIMUM_NODE_NUM; ++i) {
@@ -76,7 +96,7 @@ void bfs(maze_map* current_map, int* target_point) {
                 if (next_pos == cur_pos - 1)
                     command_buffer[i] = WEST;
             }
-            command_buffer[cnt - 1] = -1;
+            command_buffer[i] = -1;
             return;
         }
         //add subsequent nodes to queue and update their prv positions
