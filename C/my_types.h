@@ -8,6 +8,8 @@
 #define STILL 4
 #define STOP 5
 
+#define MAXIMUM_NODE_NUM 900
+
 typedef struct {
     char s_open;
     char w_open;

@@ -8,10 +8,10 @@ int main(void) {
     my_map.map[0][0].n_open = 0;
     make_map(&my_map);
 
-    if (my_map.map[0][0].s_open) {
-        printf("South is open!\n");
+    if (my_map.map[0][0].w_open) {
+        printf("West is open!\n");
     } else {
-        printf("South is closed!\n");
+        printf("West is closed!\n");
     }
 
     if (my_map.map[0][0].n_open) {
@@ -19,6 +19,16 @@ int main(void) {
     } else {
         printf("North is closed!\n");
     }
+
+    int target_pt[2];
+    target_pt[0] = 29;
+    target_pt[1] = 29;
+    printf("Prepare to bfs\n");
+    bfs(&my_map, target_pt);
+    int cnt = 0;
+    do {
+        printf("%d\n", command_buffer[cnt++]);
+    } while(command_buffer[cnt] != 0);
 
     return 0;
 }

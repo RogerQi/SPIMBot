@@ -42,7 +42,7 @@ def main(file_path = "map.txt"):
     for x, y in cell_coordinates:
         print_str += '\r\n'
         print_str += get_struct_str(printed_map, x, y)
-        print_str += "    allocated_struct->map[{0}][{1}] = cur_cell;\r\n".format(int(x / 2), int(y / 2)) #ensure it works correctly in python3
+        print_str += "    allocated_struct->map[{1}][{0}] = cur_cell;\r\n".format(int(x / 2), int(y / 2)) #ensure it works correctly in python3
 
     print_str += '}'
     print(print_str)
