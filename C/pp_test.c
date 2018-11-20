@@ -21,14 +21,14 @@ int main(void) {
     }
 
     int target_pt[2];
-    target_pt[0] = 29;
-    target_pt[1] = 29;
+    target_pt[0] = 15;
+    target_pt[1] = 15;
     printf("Prepare to bfs\n");
     bfs(&my_map, target_pt);
     int cnt = 0;
     do {
         printf("%d\n", command_buffer[cnt++]);
-    } while(command_buffer[cnt] != 0);
+    } while(command_buffer[cnt] != -1);
 
     return 0;
 }

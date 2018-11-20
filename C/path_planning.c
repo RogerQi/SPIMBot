@@ -6,7 +6,7 @@ void refresh_pp(void) {
     for (; i < MAXIMUM_NODE_NUM; ++i) {
         prv_pos[i] = -1;
         visited_mark[i] = 0;
-        command_buffer[i] = 0;
+        command_buffer[i] = -1;
     }
 }
 
@@ -53,11 +53,30 @@ void bfs(maze_map* current_map, int* target_point) {
             int cur_pos = current_node;
             int cnt = 0;
             while (cur_pos != -1) {
-                // printf("Pushing: %d\n", cur_pos);
                 command_buffer[cnt++] = cur_pos;
-                // printf("prv_pos[%d] = %d\n", cur_pos, prv_pos[cur_pos]);
                 cur_pos = prv_pos[cur_pos];
             }
+            // now cnt = length of command
+            int i = 0;
+            for (; i < cnt / 2; ++i) {
+                int temp = command_buffer[i];
+                command_buffer[i] = command_buffer[cnt - i - 1];
+                command_buffer[cnt - i - 1] = temp;
+            }
+            i = 0;
+            for (; i < cnt - 1; ++i) {
+                int cur_pos = command_buffer[i];
+                int next_pos = command_buffer[i + 1];
+                if (next_pos == cur_pos + 30)
+                    command_buffer[i] = SOUTH; //move south
+                if (next_pos == cur_pos - 30)
+                    command_buffer[i] = NORTH;
+                if (next_pos == cur_pos + 1)
+                    command_buffer[i] = EAST;
+                if (next_pos == cur_pos - 1)
+                    command_buffer[i] = WEST;
+            }
+            command_buffer[cnt - 1] = -1;
             return;
         }
         //add subsequent nodes to queue and update their prv positions

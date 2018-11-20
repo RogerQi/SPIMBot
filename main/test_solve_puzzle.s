@@ -1,8 +1,8 @@
 .data
 # syscall constants
-PRINT_STRING            = 4
-PRINT_CHAR              = 11
-PRINT_INT               = 1
+PRINT_STRING = 4
+PRINT_CHAR   = 11
+PRINT_INT    = 1
 
 # memory-mapped I/O
 VELOCITY                = 0xffff0010
@@ -14,7 +14,7 @@ BOT_Y                   = 0xffff0024
 
 TIMER                   = 0xffff001c
 
-RIGHT_WALL_SENSOR 		= 0xffff0054
+RIGHT_WALL_SENSOR       = 0xffff0054
 PICK_TREASURE           = 0xffff00e0
 TREASURE_MAP            = 0xffff0058
 MAZE_MAP                = 0xffff0050
@@ -34,9 +34,9 @@ REQUEST_PUZZLE_ACK      = 0xffff00d8
 
 # struct spim_treasure
 #{
-#    short x;
-#    short y;
-#    int points;
+#   short x;
+#   short y;
+#   int points;
 #};
 #
 #struct spim_treasure_map
@@ -56,33 +56,33 @@ sudoku_buffer:      .word 0:511 #512 bytes
 
 .text
 main:
-	# START SETTING UP INTERRUPTS
-	li $t0, REQUEST_PUZZLE_INT_MASK
-	# or $t0, $t0, TIMER_INT_MASK
-	or $t0, $t0, 1 #global interrupt enable
-	mtc0 $t0, $12 #write to status register
-	# END SETTING UP INTERRUPTS
+    # START SETTING UP INTERRUPTS
+    li $t0, REQUEST_PUZZLE_INT_MASK
+    # or $t0, $t0, TIMER_INT_MASK
+    or $t0, $t0, 1 #global interrupt enable
+    mtc0 $t0, $12 #write to status register
+    # END SETTING UP INTERRUPTS
 
 puzzle_solve_loop: #infinite loop
-	la $t0, puzzle_request_flag
-	li $t1, 1
-	sw $t1, 0($t0)
-	la $t0, sudoku_buffer
-	sw $t0, REQUEST_PUZZLE($zero)
-	la $t0, puzzle_request_flag
+    la $t0, puzzle_request_flag
+    li $t1, 1
+    sw $t1, 0($t0)
+    la $t0, sudoku_buffer
+    sw $t0, REQUEST_PUZZLE($zero)
+    la $t0, puzzle_request_flag
 
 puzzle_solve_loop_wait:
-	lw $t1, 0($t0) #if flag is zero, then we can proceed
-	bne $t1, $zero, puzzle_solve_loop_wait
+    lw $t1, 0($t0) #if flag is zero, then we can proceed
+    bne $t1, $zero, puzzle_solve_loop_wait
 
 puzzle_solve_loop_call_solver:
-	#the puzzle has been successfully written to the designated static memory address
-	la $a0, sudoku_buffer
-	jal sudoku_solver
-	#now we can suppose the puzzle has already been solved
-	la $t0, sudoku_buffer
-	sw $t0, SUBMIT_SOLUTION($zero)
-	j puzzle_solve_loop
+    #the puzzle has been successfully written to the designated static memory address
+    la $a0, sudoku_buffer
+    jal sudoku_solver
+    #now we can suppose the puzzle has already been solved
+    la $t0, sudoku_buffer
+    sw $t0, SUBMIT_SOLUTION($zero)
+    j puzzle_solve_loop
 
 # Kernel Text
 .kdata
