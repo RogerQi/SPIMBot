@@ -9,8 +9,6 @@
 
 ## Current TODO
 
-* build header files in C/ for iteration in C
-* Finish puzzle solver in accordance with soduku.c provided in lab 8 and test it
 * Get a basic path planning algorithm for test runs
 * Think about scheduling
 
