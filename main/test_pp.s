@@ -1,6 +1,5 @@
 .data
 # IMPORTANT! MUST BE CORRECTLY SET!
-TEST_PP_FUNCTOR = bfs
 TEST_TARGET_X = 29
 TEST_TARGET_Y = 29
 # syscall constants
@@ -52,6 +51,9 @@ REQUEST_PUZZLE_ACK      = 0xffff00d8
 maze_map_buffer:      .word 0:3600 #3600 bytes
 target_point_buffer: .word 0:2
 
+test_vector_table:
+    .word bfs
+
 .text
 print_command_buffer:
     li $t0, 0
@@ -91,7 +93,9 @@ main:
     sw $t0, 0($a1)
     li $t0, TEST_TARGET_Y
     sw $t0, 4($a1)
-    jal bfs
+    la $t0, test_vector_table
+    lw $t0, 0($t0)
+    jalr $t0
     jal print_command_buffer
 
 main_infinite_loop:
