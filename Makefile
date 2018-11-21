@@ -1,6 +1,7 @@
 .PHONY: clean how c_path_planning parse_map
 .PHONY: test_path_planning test_solve_puzzle
 .PHONY: alpha_bot
+.PHONY: turn_right_bot
 
 # Example to create new file
 test_solve_puzzle: TARGET_MAIN_FILE = test_solve_puzzle.s
@@ -15,6 +16,9 @@ c_path_planning: c_compile_and_run
 
 alpha_bot: TARGET_MAIN_FILE = alpha_bot.s
 alpha_bot: qtspimbot_run
+
+turn_right_bot: TARGET_MAIN_FILE = turn_right.s
+turn_right_bot: qtspimbot_run
 
 parse_map: parse_map_run
 
