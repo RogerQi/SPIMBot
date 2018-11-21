@@ -1,4 +1,8 @@
 # SPIMBot
+## Bot description
+
+See README.md in main/
+
 ## Important Numbers
 
 * (rule1 only) Average Cycles required to solve soduku puzzle: : 650k cycles/38 keys per game
