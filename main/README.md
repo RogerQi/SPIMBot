@@ -37,3 +37,6 @@
 
 ### TODO
 * Trial: try explore algorithm (e.g. turn right bot)
+
+## The. Alpha. Boss
+* Key idea: flood fill!!!!!!!!!
