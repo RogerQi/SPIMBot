@@ -69,11 +69,12 @@ function_vector_table:
     .word bfs
     .word map_preprocess
     .word am_i_on_treasure
+    .word get_nearest_treasure
 
 .text
 main:
     la $t0, target_point_buffer
-    li $t1, 15
+    li $t1, -1 #request new target points
     sw $t1, 0($t0)
     sw $t1, 4($t0)
     # START SETTING UP INTERRUPTS
@@ -192,6 +193,11 @@ timer_interrupt_try_to_open:
 timer_interrupt_try_to_open_open:
     #we have enough keys!
     sw $a1, PICK_TREASURE($zero) #pick up!
+    #set target_pt to -1, -1
+    li $t0, -1
+    la $t1, target_point_buffer
+    sw $t0, 0($t1)
+    sw $t0, 4($t1)
     j timer_interrupt_plan_and_move
 
 timer_interrupt:
@@ -200,12 +206,14 @@ timer_interrupt:
     #see if we are standing on a treasure
     la $t0, function_vector_table
     lw $t0, 8($t0)
-    jalr $t0
+    jalr $t0 #am i on treasure
     bne $v0, $zero, timer_interrupt_try_to_open
 
 timer_interrupt_plan_and_move:
     #get current desired point
-    #in this test it's hardcoded
+    la $t0, function_vector_table
+    lw $t0, 12($t0)
+    jalr $t0 #get_nearest_treasure
     #request current map and update command buffer!
     la $t0, maze_map_buffer
     sw $t0, MAZE_MAP($zero)
