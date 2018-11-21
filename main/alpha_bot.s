@@ -32,6 +32,9 @@ TIMER_ACK               = 0xffff006c
 REQUEST_PUZZLE_INT_MASK = 0x800
 REQUEST_PUZZLE_ACK      = 0xffff00d8
 
+#begin user added I/O
+GET_KEYS = 0xffff00e4
+#end user added I/O
 
 # struct spim_treasure
 #{
@@ -54,13 +57,18 @@ puzzle_request_flag: #1 - waiting for IO to finish; 0 - data looks good
 #Insert whatever static memory you need here
 .align 4 #note that we can't use double buffer or circular buffer (multiple buffer in general)
 sudoku_buffer:      .word 0:511 #512 bytes
+treasure_map_buffer: .word 0:101
 
 maze_map_buffer:      .word 0:3600 #3600 bytes
 target_point_buffer: .word 0:2
 
+key_required_lut:
+.word 0 1 0 0 0 2
+
 function_vector_table:
     .word bfs
     .word map_preprocess
+    .word am_i_on_treasure
 
 .text
 main:
@@ -168,9 +176,34 @@ request_puzzle_interrupt:
     sw $a1, REQUEST_PUZZLE_ACK($zero)
     j	interrupt_dispatch
 
+timer_interrupt_try_to_open:
+    #get current key number
+    lw $t0, GET_KEYS($zero)
+    #get needed key number
+    #note that $v0 holds points of current treasure
+    la $t1, key_required_lut
+    mul $v0, $v0, 4
+    add $v0, $v0, $t1
+    lw $v0, 0($v0) #v0 - keys required to open
+    bge $t0, $v0, timer_interrupt_try_to_open_open
+    #keys insufficient. Stall until we have enough keys
+    j timer_interrupt_finish_up
+
+timer_interrupt_try_to_open_open:
+    #we have enough keys!
+    sw $a1, PICK_TREASURE($zero) #pick up!
+    j timer_interrupt_plan_and_move
+
 timer_interrupt:
     #first, come to a complete stop
     sw $zero, VELOCITY($zero)
+    #see if we are standing on a treasure
+    la $t0, function_vector_table
+    lw $t0, 8($t0)
+    jalr $t0
+    bne $v0, $zero, timer_interrupt_try_to_open
+
+timer_interrupt_plan_and_move:
     #get current desired point
     #in this test it's hardcoded
     #request current map and update command buffer!
@@ -179,12 +212,12 @@ timer_interrupt:
     move $a0, $t0
     move $a1, $t0
     la $t0, function_vector_table
-    lw $t0, 4($t0)
+    lw $t0, 4($t0) #preprocess
     jalr $t0
     la $a1, target_point_buffer
     la $t0, function_vector_table
     lw $t0, 0($t0)
-    jalr $t0
+    jalr $t0 #path planning
     #get first move and move to that direction
     la $t0, command_buffer
     lw $t0, 0($t0) #first command
@@ -194,6 +227,8 @@ timer_interrupt:
 	sw $t0, ANGLE_CONTROL($zero) #absolute control
     li $t0, 10
     sw $t0, VELOCITY($zero)
+
+timer_interrupt_finish_up:
     #request a timer interrupt after 10000 cycles
     #and acknowledge
     sw $v0, TIMER_ACK        # acknowledge interrupt
@@ -203,10 +238,10 @@ timer_interrupt:
     j interrupt_dispatch    # see if other interrupts are waiting
 
 non_intrpt:                # was some non-interrupt
-        li        $v0, PRINT_STRING
-        la        $a0, non_intrpt_str
-        syscall                # print out an error message
-        # fall through to done
+    li        $v0, PRINT_STRING
+    la        $a0, non_intrpt_str
+    syscall                # print out an error message
+    # fall through to done
 
 done:
     la $k0, chunkIH
