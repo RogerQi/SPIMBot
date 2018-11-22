@@ -3,9 +3,16 @@
 
 #include "my_types.h"
 
+/* General buffer */
 int command_buffer[MAXIMUM_NODE_NUM];
 int visited_mark[MAXIMUM_NODE_NUM];
+
+/* BFS buffer */
 int prv_pos[MAXIMUM_NODE_NUM]; //30 x 30
+
+/* Flood fill buffer */
+int prv_target_pts[2];
+int weight_mat[MAXIMUM_NODE_NUM];
 
 //obsolete
 //0 - clear; 1 - barrier; 2 - unknown
@@ -19,8 +26,14 @@ int prv_pos[MAXIMUM_NODE_NUM]; //30 x 30
  */
 typedef void (*path_planning)(maze_map* current_map, int* target_point);
 
+void bfs_with_weight_update(maze_map* current_map, int* target_point);
+
+void map_preprocess(maze_map* raw_map, maze_map* processed_map);
+
 void refresh_pp(void);
 
 void bfs(maze_map* current_map, int* target_point);
+
+void flood_fill(maze_map* current_map, int* target_point);
 
 #endif
