@@ -11,7 +11,7 @@ test_path_planning: TARGET_MAIN_FILE = test_pp.s
 test_path_planning: qtspimbot_run
 
 c_path_planning: OUTPUT_EXE = c_path_planning
-c_path_planning: SRC_FILES = C/pp_test.c C/path_planning.c C/make_map.c
+c_path_planning: SRC_FILES = C/*.c
 c_path_planning: c_compile_and_run
 
 alpha_bot: TARGET_MAIN_FILE = alpha_bot.s
