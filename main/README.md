@@ -17,6 +17,12 @@
 
 * Benchmark: score: 5 with -mapseed 233
 
+## The. Alpha. Navigator
+* Key idea: flood fill when dynamically navigating/update weight matrix with BFS when
+    changing destination
+
+# Deprecated Design
+
 ## Beta bot: Alpha bot
 * Key idea: Inertial navigation to reduce cycles spent on path planning. Note that
     if we set the inertial blocks number to 1, it's equivalent to Alpha bot.
@@ -30,13 +36,10 @@
 ### TODO
 * Decision making: **Is there any smarter way?**
 
-## Explore and Exploit bot:
+## Explore and Exploit bot
 * Key idea: first explore the map (and obtain prizes at the same time) and after having
     some information (this should be a tunable parameter), it does efficient path planning
     in a complete sequence in this specific area.
 
 ### TODO
 * Trial: try explore algorithm (e.g. turn right bot)
-
-## The. Alpha. Boss
-* Key idea: flood fill!!!!!!!!!
