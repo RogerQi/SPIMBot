@@ -18,6 +18,12 @@ visited_mark:
 prv_pos:
 .word 0:MAXIMUM_NODE_NUM
 
+weight_mat:
+.word 0:MAXIMUM_NODE_NUM
+
+prv_target_pts:
+.word -100, -100
+
 .text
 .globl refresh_pp
 refresh_pp:
