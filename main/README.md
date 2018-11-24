@@ -15,11 +15,21 @@
     After getting the treasure, set the target to the nearest treasure (under
         simple distance metric such as Manhattan distance or Euclidean).
 
-* Benchmark: score: 5 with -mapseed 233
+### Benchmark
+* score: 5 with -mapseed 233
+* cycles spend in bfs function: ~5 million
 
 ## The. Alpha. Navigator
 * Key idea: flood fill when dynamically navigating/update weight matrix with BFS when
     changing destination
+
+* Other function to be optimized:
+
+### Benchmark
+* score: 4 with -mapseed 233
+* cycles spent in flood fill function: ~300k
+* cycles spent in bfs_weight_update: ~120k per run
+* cycles spent in preprocessing: ~10m (WTF?)
 
 # Deprecated Design
 
