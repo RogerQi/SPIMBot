@@ -147,8 +147,6 @@ interrupt_handler:
     and       $a0, $a0, 0xf        # ExcCode field
     bne       $a0, 0, non_intrpt
 
-
-
 interrupt_dispatch:            # Interrupt:
         mfc0       $k0, $13        # Get Cause register, again
         beq        $k0, 0, done        # handled all outstanding interrupts

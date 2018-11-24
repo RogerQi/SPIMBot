@@ -36,4 +36,8 @@ void bfs(maze_map* current_map, int* target_point);
 
 void flood_fill(maze_map* current_map, int* target_point);
 
+void plan_next_move(maze_map* cur_map, int* target_point);
+
+void make_weight(void);
+
 #endif

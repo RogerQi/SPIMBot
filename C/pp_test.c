@@ -27,15 +27,14 @@ int main(void) {
         command_buffer[i] = -1;
 
     int target_pt[2];
-    target_pt[0] = 7;
-    target_pt[1] = 1;
+    target_pt[0] = 19;
+    target_pt[1] = 2;
     // printf("Prepare to bfs\n");
     // bfs(&my_map, target_pt);
     printf("Prepare to floodfill\n");
-    prv_target_pts[0] = 10000;
-    prv_target_pts[1] = 10000;
-    flood_fill(&my_map, target_pt);
-    printf("Flood fill completed!\n");
+    make_weight();
+    prv_target_pts[0] = 19;
+    prv_target_pts[1] = 2;
     int y = 0;
     int x;
     for (; y < 30; ++y) {
@@ -45,8 +44,18 @@ int main(void) {
         }
         printf("\n");
     }
-    plan_next_move(target_pt);
+    flood_fill(&my_map, target_pt);
+    printf("Flood fill completed!\n");
+    y = 0;
+    for (; y < 30; ++y) {
+        x = 0;
+        for (; x < 30; ++x) {
+            printf("%d ", weight_mat[y * 30 + x]);
+        }
+        printf("\n");
+    }
     printf("Dumping command buffer.\n");
+    plan_next_move(&my_map, target_pt);
     int cnt = 0;
     do {
         printf("%d\n", command_buffer[cnt++]);

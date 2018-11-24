@@ -126,3 +126,42 @@ get_nearest_treasure_loop_end:
 
 get_nearest_treasure_ret:
     jr $ra
+
+#void print_array_in_mat(int trash, int array[900]);
+.globl print_array_in_mat
+print_array_in_mat:
+    move $t0, $zero #t0: y
+
+print_array_in_mat_y_loop:
+    bge $t0, 30, print_array_in_mat_end
+    li $t1, 0 #t1: x
+
+print_array_in_mat_x_loop:
+    bge $t1, 30, print_array_in_mat_y_loop_end
+    mul $a0, $t0, 30
+    add $a0, $a0, $t1
+    mul $a0, $a0, 4
+    add $a0, $a0, $a1
+    lw $a0, 0($a0)
+    li $v0, PRINT_INT
+    syscall
+    li $a0, ' '
+    li $v0, PRINT_CHAR
+    syscall
+
+print_array_in_mat_x_loop_end:
+    add $t1, $t1, 1
+    j print_array_in_mat_x_loop
+
+print_array_in_mat_y_loop_end:
+    li $a0, '\n'
+    li $v0, PRINT_CHAR
+    syscall
+    add $t0, $t0, 1
+    j print_array_in_mat_y_loop
+
+print_array_in_mat_end:
+    li $a0, '\n'
+    li $v0, PRINT_CHAR
+    syscall
+    jr $ra

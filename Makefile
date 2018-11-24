@@ -1,4 +1,4 @@
-.PHONY: clean how c_path_planning parse_map
+.PHONY: clean how c_path_planning parse_map parse_weight
 .PHONY: test_path_planning test_solve_puzzle
 .PHONY: alpha_bot alpha_navigator
 .PHONY: turn_right_bot
@@ -25,6 +25,8 @@ turn_right_bot: qtspimbot_run
 
 parse_map: parse_map_run
 
+parse_weight: parse_weight_run
+
 # Rules to clean
 clean:
 	rm ./spimbot.s
@@ -39,10 +41,13 @@ how:
 # Actual rule to make the targets
 qtspimbot_run:
 	python3 ./tool/assembler.py ${TARGET_MAIN_FILE}
-	QtSpimbot -file spimbot.s -mapseed 233 -debug -prof_file profile.txt
+	QtSpimbot -file spimbot.s -mapseed 233 -debug -prof_file profile.txt -limit 20000000
 
 parse_map_run:
 	python3 ./tool/map_parser.py > ./C/make_map.c
+
+parse_weight_run:
+	python3 ./tool/weight_extract.py > ./C/make_weight.c
 
 c_compile_and_run:
 	gcc -o ${OUTPUT_EXE} ${SRC_FILES}

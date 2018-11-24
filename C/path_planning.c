@@ -3,19 +3,45 @@
 
 void map_preprocess(maze_map* raw_map, maze_map* processed_map) {
     int i = 0;
+    int discovered_cell[MAXIMUM_NODE_NUM];
     for (; i < 900; ++i) {
+        discovered_cell[i] = 0;
         // In MIPS, this reduces to raw_map->[i] (why?)
         char e_open = raw_map->map[i / 30][i % 30].e_open;
         char w_open = raw_map->map[i / 30][i % 30].w_open;
         char n_open = raw_map->map[i / 30][i % 30].n_open;
         char s_open = raw_map->map[i / 30][i % 30].s_open;
         if (e_open | w_open | n_open | s_open) {
-            //nothing
+            //this is a discovered cell
+            discovered_cell[i] = 1;
         } else {
             processed_map->map[i / 30][i % 30].e_open = 1;
             processed_map->map[i / 30][i % 30].w_open = 1;
             processed_map->map[i / 30][i % 30].n_open = 1;
             processed_map->map[i / 30][i % 30].s_open = 1;
+        }
+    }
+    i = 0;
+    for (; i < 900; ++i) {
+        if (i % 30 != 29) {
+            if (discovered_cell[i + 1]) {
+                processed_map->map[i / 30][i % 30].e_open = processed_map->map[i / 30][i % 30 + 1].w_open;
+            }
+        }
+        if (i % 30 != 0) {
+            if (discovered_cell[i - 1]) {
+                processed_map->map[i / 30][i % 30].w_open = processed_map->map[i / 30][i % 30 - 1].e_open;
+            }
+        }
+        if (i / 30 != 0) {
+            if (discovered_cell[i - 30]) {
+                processed_map->map[i / 30][i % 30].n_open = processed_map->map[i / 30 - 1][i % 30].s_open;
+            }
+        }
+        if (i / 30 != 29) {
+            if (discovered_cell[i + 30]) {
+                processed_map->map[i / 30][i % 30].s_open = processed_map->map[i / 30 + 1][i % 30].n_open;
+            }
         }
     }
     return;

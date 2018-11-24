@@ -201,6 +201,9 @@ timer_interrupt_try_to_open_open:
 
 timer_interrupt:
     #first, come to a complete stop
+    #request map
+    la $t0, maze_map_buffer
+    sw $t0, MAZE_MAP($zero)
     sw $zero, VELOCITY($zero)
     #see if we are standing on a treasure
     la $t0, function_vector_table
@@ -215,11 +218,10 @@ timer_interrupt_plan_and_move:
     jalr $t0 #get_nearest_treasure
     #request current map and update command buffer!
     la $t0, maze_map_buffer
-    sw $t0, MAZE_MAP($zero)
     move $a0, $t0
     move $a1, $t0
     la $t0, function_vector_table
-    lw $t0, 4($t0) #preprocess
+    lw $t0, 4($t0) #preprocess; does not modify $a0
     jalr $t0
     la $a1, target_point_buffer
     la $t0, function_vector_table
@@ -232,7 +234,7 @@ timer_interrupt_plan_and_move:
     sw $t0, ANGLE($zero) #desired direction
 	li $t0, 1
 	sw $t0, ANGLE_CONTROL($zero) #absolute control
-    li $t0, 5
+    li $t0, 10
     sw $t0, VELOCITY($zero)
 
 timer_interrupt_finish_up:
@@ -240,7 +242,7 @@ timer_interrupt_finish_up:
     #and acknowledge
     sw $v0, TIMER_ACK        # acknowledge interrupt
     lw $t0, TIMER($zero)
-	add $t0, $t0, 20000
+	add $t0, $t0, 10000
     sw $t0, TIMER($zero)
     j interrupt_dispatch    # see if other interrupts are waiting
 
