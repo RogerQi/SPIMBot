@@ -17,7 +17,8 @@
 
 ### Benchmark
 * score: 5 with -mapseed 233
-* cycles spend in bfs function: ~5 million
+* cycles spent in bfs function: ~5 million
+* cycles spent in preprocessing: ~5 million
 
 ## The. Alpha. Navigator
 * Key idea: flood fill when dynamically navigating/update weight matrix with BFS when

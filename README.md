@@ -13,8 +13,8 @@ See README.md in main/
 
 ## Current TODO
 
-* Get a basic path planning algorithm for test runs
-* Think about scheduling
+* Optimize preprocessing function
+* Add inertial navigation
 
 ## Long-term Goals
 
@@ -22,6 +22,11 @@ See README.md in main/
 * (Optional) C implementation of SpimBot?
 * (Optional) Is there a better algorithm for solving soduku?
 * Modify makefile for profiling and simulation contests
+
+## Solved TODO
+
+* Get a basic path planning algorithm for test runs (Flood fill and BFS vs. A*)
+* Think about scheduling (don't do stuffs inside interrupts. use a for loop to mock scheduler)
 
 ## Dev Goals
 
