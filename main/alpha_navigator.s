@@ -67,7 +67,7 @@ key_required_lut:
 
 function_vector_table:
     .word flood_fill_plan
-    .word map_preprocess
+    .word map_iterative_preprocess
     .word am_i_on_treasure
     .word get_nearest_treasure
 
@@ -77,6 +77,9 @@ main:
     li $t1, -1 #request new target points
     sw $t1, 0($t0)
     sw $t1, 4($t0)
+    jal map_preprocess_init
+    # la $a1, processed_map
+    # jal print_array_in_mat
     # START SETTING UP INTERRUPTS
     li $t0, REQUEST_PUZZLE_INT_MASK
     or $t0, $t0, TIMER_INT_MASK
@@ -223,6 +226,7 @@ timer_interrupt_plan_and_move:
     la $t0, function_vector_table
     lw $t0, 4($t0) #preprocess; does not modify $a0
     jalr $t0
+    la $a0, processed_map
     la $a1, target_point_buffer
     la $t0, function_vector_table
     lw $t0, 0($t0) #get pp function

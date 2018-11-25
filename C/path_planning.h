@@ -6,6 +6,7 @@
 /* General buffer */
 int command_buffer[MAXIMUM_NODE_NUM];
 int visited_mark[MAXIMUM_NODE_NUM];
+maze_map processed_map;
 
 /* BFS buffer */
 int prv_pos[MAXIMUM_NODE_NUM]; //30 x 30

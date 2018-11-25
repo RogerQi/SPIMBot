@@ -142,7 +142,7 @@ print_array_in_mat_x_loop:
     add $a0, $a0, $t1
     mul $a0, $a0, 4
     add $a0, $a0, $a1
-    lw $a0, 0($a0)
+    lb $a0, 0($a0)
     li $v0, PRINT_INT
     syscall
     li $a0, ' '

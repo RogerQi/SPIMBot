@@ -1,9 +1,130 @@
 #include "path_planning.h"
 #include <stdio.h>
 
+int discovered_cell[MAXIMUM_NODE_NUM];
+
+void map_preprocess_init(void) {
+    int i = 0;
+    for (; i < 900; ++i) {
+        discovered_cell[i] = 0;
+        processed_map.map[i / 30][i % 30].e_open = 1;
+        processed_map.map[i / 30][i % 30].w_open = 1;
+        processed_map.map[i / 30][i % 30].n_open = 1;
+        processed_map.map[i / 30][i % 30].s_open = 1;
+    }
+}
+
+void map_iterative_preprocess(maze_map *raw_map) {
+    int bot_x = 0; //In MIPS, use memory I/O to get real location of bot
+    int bot_y = 0;
+    //update center cell, note that we don't need to care about consistency
+    processed_map.map[bot_y][bot_x].e_open = raw_map->map[bot_y][bot_x].e_open;
+    processed_map.map[bot_y][bot_x].w_open = raw_map->map[bot_y][bot_x].w_open;
+    processed_map.map[bot_y][bot_x].n_open = raw_map->map[bot_y][bot_x].n_open;
+    processed_map.map[bot_y][bot_x].s_open = raw_map->map[bot_y][bot_x].s_open;
+
+    if (bot_x != 0) {
+        //left
+        processed_map.map[bot_y][bot_x - 1].e_open = raw_map->map[bot_y][bot_x - 1].e_open;
+        processed_map.map[bot_y][bot_x - 1].w_open = raw_map->map[bot_y][bot_x - 1].w_open;
+        processed_map.map[bot_y][bot_x - 1].n_open = raw_map->map[bot_y][bot_x - 1].n_open;
+        processed_map.map[bot_y][bot_x - 1].s_open = raw_map->map[bot_y][bot_x - 1].s_open;
+        //we dont need to update upper left cell and lower left
+        if (bot_x != 1) {
+            processed_map.map[bot_y][bot_x - 2].e_open = raw_map->map[bot_y][bot_x - 1].w_open;
+        }
+    }
+
+    if (bot_x != 29) {
+        //right
+        processed_map.map[bot_y][bot_x + 1].e_open = raw_map->map[bot_y][bot_x + 1].e_open;
+        processed_map.map[bot_y][bot_x + 1].w_open = raw_map->map[bot_y][bot_x + 1].w_open;
+        processed_map.map[bot_y][bot_x + 1].n_open = raw_map->map[bot_y][bot_x + 1].n_open;
+        processed_map.map[bot_y][bot_x + 1].s_open = raw_map->map[bot_y][bot_x + 1].s_open;
+        //we dont need to update upper right cell and lower right
+        if (bot_x != 28) {
+            processed_map.map[bot_y][bot_x + 2].w_open = raw_map->map[bot_y][bot_x + 1].e_open;
+        }
+    }
+
+    if (bot_y != 0) {
+        //upper
+        processed_map.map[bot_y - 1][bot_x].e_open = raw_map->map[bot_y - 1][bot_x].e_open;
+        processed_map.map[bot_y - 1][bot_x].w_open = raw_map->map[bot_y - 1][bot_x].w_open;
+        processed_map.map[bot_y - 1][bot_x].n_open = raw_map->map[bot_y - 1][bot_x].n_open;
+        processed_map.map[bot_y - 1][bot_x].s_open = raw_map->map[bot_y - 1][bot_x].s_open;
+        if (bot_y != 1) {
+            //not 0 or 1
+            processed_map.map[bot_y - 2][bot_x].s_open = raw_map->map[bot_y - 1][bot_x].n_open;
+        }
+        if (bot_x != 0) {
+            //upper left
+            processed_map.map[bot_y - 1][bot_x - 1].e_open = raw_map->map[bot_y - 1][bot_x - 1].e_open;
+            processed_map.map[bot_y - 1][bot_x - 1].w_open = raw_map->map[bot_y - 1][bot_x - 1].w_open;
+            processed_map.map[bot_y - 1][bot_x - 1].n_open = raw_map->map[bot_y - 1][bot_x - 1].n_open;
+            processed_map.map[bot_y - 1][bot_x - 1].s_open = raw_map->map[bot_y - 1][bot_x - 1].s_open;
+            if (bot_x != 1) {
+                processed_map.map[bot_y - 1][bot_x - 2].e_open = raw_map->map[bot_y - 1][bot_x - 1].w_open;
+            }
+            if (bot_y != 1) {
+                processed_map.map[bot_y - 2][bot_x - 1].s_open = raw_map->map[bot_y - 1][bot_x - 1].n_open;
+            }
+        }
+        if (bot_x != 29) {
+            //upper right
+            processed_map.map[bot_y - 1][bot_x + 1].e_open = raw_map->map[bot_y - 1][bot_x + 1].e_open;
+            processed_map.map[bot_y - 1][bot_x + 1].w_open = raw_map->map[bot_y - 1][bot_x + 1].w_open;
+            processed_map.map[bot_y - 1][bot_x + 1].n_open = raw_map->map[bot_y - 1][bot_x + 1].n_open;
+            processed_map.map[bot_y - 1][bot_x + 1].s_open = raw_map->map[bot_y - 1][bot_x + 1].s_open;
+            if (bot_x != 28) {
+                processed_map.map[bot_y - 1][bot_x + 2].w_open = raw_map->map[bot_y - 1][bot_x + 1].e_open;
+            }
+            if (bot_y != 1) {
+                processed_map.map[bot_y - 2][bot_x + 1].s_open = raw_map->map[bot_y - 1][bot_x + 1].n_open;
+            }
+        }
+    }
+    if (bot_y != 29) {
+        //lower
+        processed_map.map[bot_y + 1][bot_x].e_open = raw_map->map[bot_y + 1][bot_x].e_open;
+        processed_map.map[bot_y + 1][bot_x].w_open = raw_map->map[bot_y + 1][bot_x].w_open;
+        processed_map.map[bot_y + 1][bot_x].n_open = raw_map->map[bot_y + 1][bot_x].n_open;
+        processed_map.map[bot_y + 1][bot_x].s_open = raw_map->map[bot_y + 1][bot_x].s_open;
+        if (bot_y != 28) {
+            processed_map.map[bot_y + 2][bot_x].n_open = raw_map->map[bot_y + 1][bot_x].s_open;
+        }
+        if (bot_x != 0) {
+            //lower left
+            processed_map.map[bot_y + 1][bot_x - 1].e_open = raw_map->map[bot_y + 1][bot_x - 1].e_open;
+            processed_map.map[bot_y + 1][bot_x - 1].w_open = raw_map->map[bot_y + 1][bot_x - 1].w_open;
+            processed_map.map[bot_y + 1][bot_x - 1].n_open = raw_map->map[bot_y + 1][bot_x - 1].n_open;
+            processed_map.map[bot_y + 1][bot_x - 1].s_open = raw_map->map[bot_y + 1][bot_x - 1].s_open;
+            if (bot_x != 1) {
+                processed_map.map[bot_y + 1][bot_x - 2].e_open = raw_map->map[bot_y + 1][bot_x - 1].w_open;
+            }
+            if (bot_y != 28) {
+                processed_map.map[bot_y + 2][bot_x - 1].n_open = raw_map->map[bot_y + 1][bot_x - 1].s_open;
+            }
+        }
+        if (bot_x != 29) {
+            //lower right
+            processed_map.map[bot_y + 1][bot_x + 1].e_open = raw_map->map[bot_y + 1][bot_x + 1].e_open;
+            processed_map.map[bot_y + 1][bot_x + 1].w_open = raw_map->map[bot_y + 1][bot_x + 1].w_open;
+            processed_map.map[bot_y + 1][bot_x + 1].n_open = raw_map->map[bot_y + 1][bot_x + 1].n_open;
+            processed_map.map[bot_y + 1][bot_x + 1].s_open = raw_map->map[bot_y + 1][bot_x + 1].s_open;
+            if (bot_x != 28) {
+                processed_map.map[bot_y + 1][bot_x + 2].w_open = raw_map->map[bot_y + 1][bot_x + 1].e_open;
+            }
+            if (bot_y != 28) {
+                processed_map.map[bot_y + 2][bot_x + 1].n_open = raw_map->map[bot_y + 1][bot_x + 1].s_open;
+            }
+        }
+    }
+}
+
+/*
 void map_preprocess(maze_map* raw_map, maze_map* processed_map) {
     int i = 0;
-    int discovered_cell[MAXIMUM_NODE_NUM];
     for (; i < 900; ++i) {
         discovered_cell[i] = 0;
         // In MIPS, this reduces to raw_map->[i] (why?)
@@ -46,6 +167,7 @@ void map_preprocess(maze_map* raw_map, maze_map* processed_map) {
     }
     return;
 }
+*/
 
 void refresh_pp(void) {
     int i = 0;
