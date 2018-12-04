@@ -122,6 +122,7 @@ interrupt_handler:
 .set noat
         move      $k1, $at        # Save $at
 .set at
+    sw $zero, VELOCITY($zero)
     la $k0, chunkIH
     sw $a0, 0($k0)        # Get some free registers
     sw $a1, 4($k0)
