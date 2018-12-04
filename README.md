@@ -11,10 +11,14 @@ See README.md in main/
 * Supercorn: costs 1 key and gives 1 point
 * Treasure chest: costs 2 keys and gives 5 and reveal surrounding 7x7 area
 
-## Current TODO
+## Current path planning TODO
 
-* Optimize preprocessing function
-* Add inertial navigation
+* Fix astray caused by timer interrupt.
+* Add inertial navigation.
+
+## Current Decision Making TODO
+
+* TBD
 
 ## Long-term Goals
 
