@@ -65,6 +65,8 @@ target_point_buffer: .word 0:2
 key_required_lut:
 .word 0 1 0 0 0 2
 
+desired_speed: .word 0
+
 function_vector_table:
     .word flood_fill_plan
     .word map_iterative_preprocess
@@ -124,10 +126,12 @@ interrupt_handler:
 .set at
     sw $zero, VELOCITY($zero)
     la $k0, chunkIH
+    sw $t0, 12($k0)
+    la $t0, desired_speed
+    sw $zero, 0($t0)
     sw $a0, 0($k0)        # Get some free registers
     sw $a1, 4($k0)
     sw $v0, 8($k0)
-    sw $t0, 12($k0)
     sw $t1, 16($k0)
     sw $t2, 20($k0)
     sw $t3, 24($k0)
@@ -204,11 +208,10 @@ timer_interrupt_try_to_open_open:
     j timer_interrupt_plan_and_move
 
 timer_interrupt:
-    #first, come to a complete stop
+    #stopped in interrupt handler.
     #request map
     la $t0, maze_map_buffer
     sw $t0, MAZE_MAP($zero)
-    sw $zero, VELOCITY($zero)
     #see if we are standing on a treasure
     la $t0, function_vector_table
     lw $t0, 8($t0)
@@ -240,7 +243,8 @@ timer_interrupt_plan_and_move:
 	li $t0, 1
 	sw $t0, ANGLE_CONTROL($zero) #absolute control
     li $t0, 10
-    sw $t0, VELOCITY($zero)
+    la $a0, desired_speed
+    sw $t0, ($a0)
 
 timer_interrupt_finish_up:
     #request a timer interrupt after 10000 cycles
@@ -262,7 +266,6 @@ done:
     lw $a0, 0($k0)        # Free them
     lw $a1, 4($k0)
     lw $v0, 8($k0)
-    lw $t0, 12($k0)
     lw $t1, 16($k0)
     lw $t2, 20($k0)
     lw $t3, 24($k0)
@@ -281,6 +284,10 @@ done:
     lw $s6, 76($k0)
     lw $s7, 80($k0)
     lw $ra, 84($k0)
+    la $t0, desired_speed
+    lw $t0, 0($t0)
+    sw $t0, VELOCITY($zero)
+    lw $t0, 12($k0)
 
 .set noat
     move    $at, $k1        # Restore $at
