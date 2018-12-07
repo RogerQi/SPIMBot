@@ -90,41 +90,27 @@ get_nearest_treasure_true_routine:
     la $t2, treasure_map_buffer #t2: TREASURE_MAP
     sw $t2, TREASURE_MAP($zero) #request treasure map again
     lw $t3, 0($t2) #t3: length
-    beq $t3, $zero, get_nearest_treasure_ret
-    lhu $t6, 4($t2) #for some reason this is x
-    la $t1, target_point_buffer
-    sw $t6, 0($t1)
-    lhu $t7, 6($t2) #for some reason this is y
-    sw $t7, 4($t1)
-    sub $t6, $t6, $a0
-    abs $t6, $t6 #x abs
-    sub $t7, $t7, $v0
-    abs $t7, $t7 #y abs
-    add $t6, $t6, $t7 #t6: min_dist
-    li $t1, 1 #t1: i = 1
+    li $t1, 0 #t1: i = 0
 
 get_nearest_treasure_loop:
-    bge $t1, $t3, get_nearest_treasure_ret
+    bge $t1, $t3, get_nearest_treasure_ret #should never happen according to rule
     mul $t4, $t1, 8 #offset struct
     add $t4, $t4, 4 #true offset from treasure_map
     add $t4, $t4, $t2 #&treasure_map.treasures[i]
-    lhu $t5, 2($t4) #t5: treasure y
-    lhu $t4, 0($t4) #t4: treasure x
-    sub $t7, $t4, $a0
-    sub $t8, $t5, $v0
-    abs $t7, $t7 #x abs
-    abs $t8, $t8 #y abs
-    add $t7, $t7, $t8 #t7: cur_dist
-    bge $t7, $t6, get_nearest_treasure_loop_end
-    la $t1, target_point_buffer
-    sw $t4, 0($t1)
-    sw $t5, 4($t1)
+    lw $t6, 4($t4) #t6: treasure award point
+    beq $t6, 5, get_nearest_treasure_ret
+    #fall to loop end
 
 get_nearest_treasure_loop_end:
     add $t1, $t1, 1
     j get_nearest_treasure_loop
 
 get_nearest_treasure_ret:
+    lhu $t5, 2($t4) #t5: treasure y
+    lhu $t4, 0($t4) #t4: treasure x
+    la $t1, target_point_buffer
+    sw $t4, 0($t1)
+    sw $t5, 4($t1)
     jr $ra
 
 #void print_array_in_mat(int trash, int array[900]);

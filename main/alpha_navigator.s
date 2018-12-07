@@ -63,7 +63,7 @@ maze_map_buffer:      .word 0:3600 #3600 bytes
 target_point_buffer: .word 0:2
 
 key_required_lut:
-.word 0 1 0 0 0 2
+.word 0 1 0 0 0 3
 
 desired_speed: .word 0
 
