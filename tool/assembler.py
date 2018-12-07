@@ -2,6 +2,7 @@
 import os
 import sys
 
+priortized_files = ["header.s", "map_preprocessor.s"]
 dependency_dir = ["./LIB/"]
 assembled_file_path = "./spimbot.s"
 qtspimbot_command_line = "QtSpimbot -file spimbot.s -mapseed 233"
@@ -35,6 +36,19 @@ def main():
     assembled_file_content += seperate_str.format("End Main File")
     assembled_file_content += seperate_str.format("Start Lib File")
 
+    #proirize files; naive! Don't be tricky!
+    swap_ptr = 0
+    for i in range(len(visible_libs)):
+        for p_file in priortized_files:
+            if p_file in visible_libs[i]:
+                #priortize this!
+                print("Priortizing ", p_file)
+                temp = visible_libs[swap_ptr]
+                visible_libs[swap_ptr] = visible_libs[i]
+                visible_libs[i] = temp
+                swap_ptr += 1
+
+    print(visible_libs)
     for lib_file_path in visible_libs:
         cur_file_name = lib_file_path[len(lib_file_path) - lib_file_path[::-1].find("/"):]
         print("Processing: {0}".format(cur_file_name))
