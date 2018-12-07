@@ -41,7 +41,7 @@ how:
 # Actual rule to make the targets
 qtspimbot_run:
 	python3 ./tool/assembler.py ${TARGET_MAIN_FILE}
-	QtSpimbot -file spimbot.s -mapseed 233 -debug -prof_file profile.txt -limit 20000000
+	QtSpimbot -file spimbot.s -mapseed 16 -tournament -run -maponly -debug -prof_file profile.txt
 
 parse_map_run:
 	python3 ./tool/map_parser.py > ./C/make_map.c
