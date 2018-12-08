@@ -62,6 +62,8 @@ treasure_map_buffer: .word 0:101
 maze_map_buffer:      .word 0:3600 #3600 bytes
 target_point_buffer: .word 0:2
 
+command_buffer_ptr: .word 0
+
 key_required_lut:
 .word 0 1 0 0 0 3
 
@@ -75,10 +77,18 @@ function_vector_table:
 
 .text
 main:
+    la $t0, command_buffer_ptr
+    sw $zero, 0($t0)
+    la $t0, command_buffer
+    li $t1, -1
+    sw $t1, 0($t0)
     la $t0, target_point_buffer
     li $t1, -1 #request new target points
     sw $t1, 0($t0)
     sw $t1, 4($t0)
+    la $t0, step_to_plan
+    li $t1, 1
+    sw $t1, 0($t0)
     jal map_preprocess_init
     # la $a1, processed_map
     # jal print_array_in_mat
@@ -222,7 +232,7 @@ timer_interrupt_plan_and_move:
     #get current desired point
     la $t0, function_vector_table
     lw $t0, 12($t0)
-    jalr $t0 #get_nearest_treasure
+    jalr $t0 #get_nearest_treasure_ptr
     #request current map and update command buffer!
     la $t0, maze_map_buffer
     move $a0, $t0
@@ -230,21 +240,38 @@ timer_interrupt_plan_and_move:
     la $t0, function_vector_table
     lw $t0, 4($t0) #preprocess; does not modify $a0
     jalr $t0
+    #get current command and see if we need to stop.
+    la $t0, command_buffer_ptr
+    lw $t0, 0($t0)
+    mul $t0, $t0, 4
+    la $a0, command_buffer
+    add $t0, $t0, $a0
+    lw $t0, 0($t0) #current command
+    bne $t0, -1, timer_interrupt_move_t_zero_command
+    #replan!
     la $a0, processed_map
     la $a1, target_point_buffer
     la $t0, function_vector_table
     lw $t0, 0($t0) #get pp function
     jalr $t0 #path planning
     #get first move and move to that direction
+    la $a0, command_buffer_ptr
+    sw $zero, 0($a0)
     la $t0, command_buffer
     lw $t0, 0($t0) #first command
+
+timer_interrupt_move_t_zero_command:
     mul $t0, $t0, 90
     sw $t0, ANGLE($zero) #desired direction
 	li $t0, 1
 	sw $t0, ANGLE_CONTROL($zero) #absolute control
     li $t0, 10
     la $a0, desired_speed
-    sw $t0, ($a0)
+    sw $t0, 0($a0)
+    la $a0, command_buffer_ptr
+    lw $t0, 0($a0)
+    add $t0, $t0, 1
+    sw $t0, 0($a0)
 
 timer_interrupt_finish_up:
     #request a timer interrupt after 10000 cycles

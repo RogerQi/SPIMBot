@@ -2,6 +2,9 @@
 stack:
 .word 0:5000
 
+step_to_plan: #1 - infinity. The lower the number is, the more optimized the path is and the more computation time it requires.
+.word 0
+
 .text
 #
 .globl flood_fill_plan
@@ -46,12 +49,16 @@ plan_next_move:
     li $v0, 0 #v0: command_buffer_ptr
     la $t7, command_buffer #t7: command_buffer[MAXIMUM_NODE_NUM]
     la $t6, weight_mat
+    la $t2, step_to_plan
+    lw $t2, 0($t2)
 
 plan_next_move_loop:
     sub $t0, $t8, $a0 #if nonzero, continue
     sub $t1, $t9, $a1 #if nonzero, continue
     or $t0, $t0, $t1 #if either is nonzero, continue
     beq $t0, $zero, plan_next_move_ret
+    #check step, plan only required steps
+    bge $v0, $t2, plan_next_move_ret
     mul $t5, $t9, 30
     add $t5, $t5, $t8 #t5: cur_node
     mul $t0, $t5, 4
@@ -73,13 +80,14 @@ plan_next_move_loop_e:
     add $t0, $t0, $t3
     lb $t0, 3($t0)
     beq $t0, $zero, plan_next_move_loop_w
-    add $t8, $t8, 1
+    add $t8, $t8, 1 #travel to east
     mul $t0, $v0, 4
     add $t0, $t0, $t7
     li $t1, EAST
     sw $t1, 0($t0)
     add $v0, $v0, 1
-    j plan_next_move_ret
+    #j plan_next_move_ret
+    j plan_next_move_loop
 
 plan_next_move_loop_w:
     sub $t0, $t5, 1
@@ -102,7 +110,8 @@ plan_next_move_loop_w:
     li $t1, WEST
     sw $t1, 0($t0)
     add $v0, $v0, 1
-    j plan_next_move_ret
+    #j plan_next_move_ret
+    j plan_next_move_loop
 
 plan_next_move_loop_n:
     sub $t0, $t5, 30
@@ -124,29 +133,48 @@ plan_next_move_loop_n:
     li $t1, NORTH
     sw $t1, 0($t0)
     add $v0, $v0, 1
-    j plan_next_move_ret
+    #j plan_next_move_ret
+    j plan_next_move_loop
 
 plan_next_move_loop_s:
     add $t0, $t5, 30
-    bge $t0, MAXIMUM_NODE_NUM, plan_next_move_loop
+    bge $t0, MAXIMUM_NODE_NUM, plan_next_move_fail
     mul $t0, $t0, 4
     add $t0, $t0, $t6
     lw $t0, 0($t0) #weight_mat[cur_node + 1]
     sub $t1, $t4, 1
-    bne $t0, $t1, plan_next_move_loop
+    bne $t0, $t1, plan_next_move_fail
     mul $t0, $t9, 120
     mul $t1, $t8, 4
     add $t0, $t0, $t1
     add $t0, $t0, $t3
     lb $t0, 0($t0)
-    beq $t0, $zero, plan_next_move_loop
+    beq $t0, $zero, plan_next_move_fail
     add $t9, $t9, 1
     mul $t0, $v0, 4
     add $t0, $t0, $t7
     li $t1, SOUTH
     sw $t1, 0($t0)
     add $v0, $v0, 1
-    j plan_next_move_ret
+    j plan_next_move_loop
+    #j plan_next_move_ret
+
+plan_next_move_fail: #flood fill can fail in some case! In this case run the algorithm only locally
+    li $t2, 1 #change required step to 1
+    #reobtain current robot x/y
+    lw $t8, BOT_X($zero)
+    #handle edge case: if this is 300 the program may fail
+    div $t8, $t8, 10
+    slt $t0, $t8, 30
+    li $t1, 1
+    xor $t0, $t0, $t1
+    sub $t8, $t8, $t0 #t8: cur_x = bot_x
+    lw $t9, BOT_Y($zero)
+    div $t9, $t9, 10
+    slt $t0, $t9, 30
+    xor $t0, $t0, $t1
+    sub $t9, $t9, $t0 #t9: cur_y = bot_y
+    j plan_next_move_loop
 
 plan_next_move_ret:
     mul $v0, $v0, 4

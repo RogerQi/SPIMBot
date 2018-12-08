@@ -6,7 +6,7 @@ SOUTH = 1
 WEST = 2
 NORTH = 3
 STILL = 4
-STOP = 5
+STOP = -1
 
 # .globl
 command_buffer:

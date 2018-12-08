@@ -71,8 +71,17 @@ am_i_on_treasure_loop_ret_zero:
 #   return 0;
 # }
 
+.data
+big_prizes: .word 0:10 #[x, y], [x, y] should be 0:3 but for sanity
+
+.text
 .globl get_nearest_treasure
 get_nearest_treasure:
+    la $t0, big_prizes
+    sw $t0, 0($t0) #a big number
+    sw $t0, 4($t0)
+    sw $t0, 8($t0) #a big number
+    sw $t0, 12($t0)
     la $t0, target_point_buffer
     lw $t1, 0($t0) #target_pt[0]
     lw $t2, 4($t0) #target_pt[1]
@@ -91,14 +100,23 @@ get_nearest_treasure_true_routine:
     sw $t2, TREASURE_MAP($zero) #request treasure map again
     lw $t3, 0($t2) #t3: length
     li $t1, 0 #t1: i = 0
+    li $t8, 0
 
 get_nearest_treasure_loop:
-    bge $t1, $t3, get_nearest_treasure_ret #should never happen according to rule
+    bge $t1, $t3, get_nearest_treasure_ret
     mul $t4, $t1, 8 #offset struct
     add $t4, $t4, 4 #true offset from treasure_map
     add $t4, $t4, $t2 #&treasure_map.treasures[i]
     lw $t6, 4($t4) #t6: treasure award point
-    beq $t6, 5, get_nearest_treasure_ret
+    bne $t6, 5, get_nearest_treasure_loop_end
+    #this is a big treasure! Jackpot!
+    la $t7, big_prizes
+    add $t7, $t7, $t8
+    add $t8, $t8, 8
+    lhu $t5, 2($t4) #y
+    lhu $t4, 0($t4) #x
+    sw $t4, 0($t7)
+    sw $t5, 4($t7)
     #fall to loop end
 
 get_nearest_treasure_loop_end:
@@ -106,11 +124,32 @@ get_nearest_treasure_loop_end:
     j get_nearest_treasure_loop
 
 get_nearest_treasure_ret:
-    lhu $t5, 2($t4) #t5: treasure y
-    lhu $t4, 0($t4) #t4: treasure x
+    #first x/y
+    la $t7, big_prizes
+    lw $t4, 0($t7)
+    lw $t5, 4($t7)
+    lw $t2, 8($t7)
+    lw $t3, 12($t7)
+    sub $t0, $t4, $a0
+    sub $t2, $t2, $a0
+    abs $t0, $t0
+    abs $t2, $t2
+    sub $t1, $t5, $v0
+    sub $t3, $t3, $v0
+    abs $t1, $t1
+    abs $t3, $t3
+    add $t0, $t0, $t1 #first manhattan dist
+    add $t2, $t2, $t3 #second manhattan dist
+    #t4 t5 are coordinates for first treasure
+    ble $t0, $t2, get_nearest_treasure_true_true_ret
+    #second is smaller
+    lw $t4, 8($t7)
+    lw $t5, 12($t7)
+
+get_nearest_treasure_true_true_ret:
     la $t1, target_point_buffer
-    sw $t4, 0($t1)
-    sw $t5, 4($t1)
+    sw $t4, 0($t1) #x
+    sw $t5, 4($t1) #y
     jr $ra
 
 #void print_array_in_mat(int trash, int array[900]);
