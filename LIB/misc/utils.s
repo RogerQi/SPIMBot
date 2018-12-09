@@ -6,47 +6,97 @@
 # int am_i_on_treasure(void) {
 # 	int cur_x = bot_x();
 # 	int cur_y = bot_y();
+#   int target_x = target_x();
+#   int target_y = target_y();
 # 	int i = 0;
+#   int ret = 0;
+#   int targetStillAvailable = 0;
 # 	for(; i < treasure_map.length; ++i) {
+#     if (target_x == treasure_map.treasure[i].x and target_x == ... y) {
+#       targetStillAvailable = 1;
+#     }
 # 		if(cur_x == treasure_map.treasures[i].x and cur_y == ... y) {
-# 			return 1;
+# 			ret = 1;
 # 		}
 # 	}
-# 	return 0;
+#
+#   if (!targetStillAvailable) {
+#       set_target_x(-1);
+#       set_target_y(-1);
+#   }
+#
+# 	return ret;
 # }
 am_i_on_treasure:
     lw $a0, BOT_X($zero)
     lw $v0, BOT_Y($zero)
     div $a0, $a0, 10
     div $v0, $v0, 10
+    la $t0, target_point_buffer
+    lw $t6, 0($t0) #target_pt[0]
+    lw $t7, 4($t0) #target_pt[1]
+    #div $t6, $t6, 10
+    #div $t7, $t7, 10
+
     li $t1, 0 #t1: i
+    li $s0, 0 #targetStillAvailable
+    li $s1, 0 #ret
     la $t2, treasure_map_buffer
     sw $t2, TREASURE_MAP($zero) #request treasure map again
     lw $t3, 0($t2) #t3: length
 
 am_i_on_treasure_loop:
-    bge $t1, $t3, am_i_on_treasure_loop_ret_zero
+    bge $t1, $t3, update_target_if_necessary
     mul $t4, $t1, 8 #offset struct
     add $t4, $t4, 4 #true offset from treasure_map
     add $t4, $t4, $t2 #&treasure_map.treasures[i]
     lhu $t5, 2($t4) #t5: treasure y
     lhu $t4, 0($t4) #t4: treasure x
-    sub $t4, $t4, $a0
-    sub $t5, $t5, $v0
-    or $t4, $t4, $t5 #if both are zero, then ret one
-    beq $t4, $zero, am_i_on_treasure_loop_ret_pts
+
+    sub $s2, $t6, $t4
+    sub $s3, $t7, $t5
+    or  $s2, $s2, $s3
+    bne $s2, $zero, determine_if_on_a_treasure
+
+    li $s0, 1
+
+determine_if_on_a_treasure:
+    sub $s2, $t4, $a0
+    sub $s3, $t5, $v0
+
+
+    or $s2, $s2, $s3 #if both are zero, then return points
+    bne $s2, $zero, am_i_on_treasure_loop_continue
+
+    mul $s2, $t1, 8 #offset struct
+    add $s2, $s2, 4
+    add $s3, $s2, $t2
+    lw $s1, 4($s3)
+
+am_i_on_treasure_loop_continue:
     add $t1, $t1, 1
     j am_i_on_treasure_loop
 
-am_i_on_treasure_loop_ret_pts:
-    mul $v0, $t1, 8 #offset struct
-    add $v0, $v0, 4
-    add $v0, $v0, $t2
-    lw $v0, 4($v0)
-    jr $ra
+update_target_if_necessary:
+    bne $s0, $zero, am_i_on_treasure_loop_ret
 
-am_i_on_treasure_loop_ret_zero:
-    li $v0, 0
+    li $s2, -1
+    sw $s2, 0($t0)
+    sw $s2, 4($t0)
+
+am_i_on_treasure_loop_ret:
+    move $v0, $s1
+
+    move $s6, $a0
+    move $s7, $v0
+
+    li $a0, '\n'
+    li $v0, PRINT_CHAR
+    syscall
+
+    move $a0, $s6
+    move $v0, $s7
+
     jr $ra
 
 # int target_pt[2];
