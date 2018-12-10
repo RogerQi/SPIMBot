@@ -220,6 +220,7 @@ get_nearest_treasure_true_true_ret:
     la $t1, target_point_buffer
     sw $t4, 0($t1) #x
     sw $t5, 4($t1) #y
+
     jr $ra
 
 #void print_array_in_mat(int trash, int array[900]);
