@@ -8,11 +8,13 @@
 # 	int cur_y = bot_y();
 #   int target_x = target_x();
 #   int target_y = target_y();
+#   int enemy_x = enemy_x();
+#   int enemy_y = enemy_y();
 # 	int i = 0;
 #   int ret = 0;
 #   int targetStillAvailable = 0;
 # 	for(; i < treasure_map.length; ++i) {
-#     if (target_x == treasure_map.treasure[i].x and target_x == ... y) {
+#     if (target_x == treasure_map.treasure[i].x and target_x == ... y and enemy_x != treasure_map.treasure[i].x and enemy_y == ... y) {
 #       targetStillAvailable = 1;
 #     }
 # 		if(cur_x == treasure_map.treasures[i].x and cur_y == ... y) {
@@ -32,11 +34,13 @@ am_i_on_treasure:
     lw $v0, BOT_Y($zero)
     div $a0, $a0, 10
     div $v0, $v0, 10
+	  lw $s6, OTHER_BOT_X($zero)
+    lw $s7, OTHER_BOT_Y($zero)
+	  div $s6, $s6, 10
+    div $s7, $s7, 10
     la $t0, target_point_buffer
     lw $t6, 0($t0) #target_pt[0]
     lw $t7, 4($t0) #target_pt[1]
-    #div $t6, $t6, 10
-    #div $t7, $t7, 10
 
     li $t1, 0 #t1: i
     li $s0, 0 #targetStillAvailable
@@ -56,6 +60,10 @@ am_i_on_treasure_loop:
     sub $s2, $t6, $t4
     sub $s3, $t7, $t5
     or  $s2, $s2, $s3
+	sub $s4, $s6, $t4
+    sub $s5, $s7, $t5
+    nor  $s4, $s4, $s5
+	or  $s2, $s2, $s4
     bne $s2, $zero, determine_if_on_a_treasure
 
     li $s0, 1
@@ -105,17 +113,19 @@ am_i_on_treasure_loop_ret:
 #       return;
 #   int cur_x = bot_x();
 #   int cur_y = bot_y();
+#   int enemy_x = enemy_x();
+#   int enemy_y = enemy_y();
 #   if (trasure_map.length == 0)
 #       return;
-#   target_pt[0] = treasure_map[0].x;
-#   target_pt[1] = treasure_map[0].y;
 #   int min_dist = functor(cur_x, cur_y, treasure_map[0].x, treasure_map[0].y);
-#   int i = 1;
+#   int i = 0;
 #   for(; i < treasure_map.length; ++i) {
-#       int cur_dist = functor(cur_x, cur_y, treasure_map[i].x, treasure_map[i].y);
-#       if (cur_dist < min_dist) {
-#           target_pt[0] = treasure_map[i].x;
-#           target_pt[1] = treasure_map[i].y;
+#		if (enemy_x != treasure_map[i].x && enemy_y != treasure_map[i].y) {
+#			int cur_dist = functor(cur_x, cur_y, treasure_map[i].x, treasure_map[i].y);
+#		    if (cur_dist < min_dist) {
+#				target_pt[0] = treasure_map[i].x;
+#				target_pt[1] = treasure_map[i].y;
+#			}
 #       }
 #   }
 #   return 0;
@@ -146,6 +156,10 @@ get_nearest_treasure_true_routine:
     lw $v0, BOT_Y($zero)
     div $a0, $a0, 10 #a0: bot_x
     div $v0, $v0, 10 #v0: bot_y
+	  lw $s6, OTHER_BOT_X($zero)
+    lw $s7, OTHER_BOT_Y($zero)
+    div $s6, $s6, 10 #a0: bot_x
+    div $s7, $s7, 10 #v0: bot_y
     la $t2, treasure_map_buffer #t2: TREASURE_MAP
     sw $t2, TREASURE_MAP($zero) #request treasure map again
     lw $t3, 0($t2) #t3: length
@@ -165,6 +179,12 @@ get_nearest_treasure_loop:
     add $t8, $t8, 8
     lhu $t5, 2($t4) #y
     lhu $t4, 0($t4) #x
+
+    sub $s0, $s6, $t4
+    sub $s1, $s7, $t5
+    or $s0, $s0, $s1
+    beq $s0, $zero, get_nearest_treasure_loop_end
+
     sw $t4, 0($t7)
     sw $t5, 4($t7)
     #fall to loop end
@@ -200,6 +220,7 @@ get_nearest_treasure_true_true_ret:
     la $t1, target_point_buffer
     sw $t4, 0($t1) #x
     sw $t5, 4($t1) #y
+
     jr $ra
 
 #void print_array_in_mat(int trash, int array[900]);
