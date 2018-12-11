@@ -98,9 +98,9 @@ am_i_on_treasure_loop_ret:
     move $s6, $a0
     move $s7, $v0
 
-    li $a0, '\n'
-    li $v0, PRINT_CHAR
-    syscall
+    # li $a0, '\n'
+    # li $v0, PRINT_CHAR
+    # syscall
 
     move $a0, $s6
     move $v0, $s7
