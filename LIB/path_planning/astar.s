@@ -2,6 +2,8 @@
 frontier:
 .word 0:3600
 
+astar_flag: .word 0:1
+
 .text
 .globl astar_plan
 astar_plan:
@@ -16,9 +18,14 @@ astar_plan:
     add $t0, $t0, $t1
     li $t1, -1
     sw $t1, 0($t0) #set a stop somewhere
-    lw $ra, 0($s0)
-    add $sp, $sp, 12
+    lw $ra, 0($sp)
+    add $sp, $sp, 4
     jr $ra
+
+astar_ff_mix_plan:
+    sub $sp, $sp, 4
+    sw $ra, 0($sp)
+
 
 .globl astar
 astar:
@@ -63,6 +70,7 @@ astar_true:
     jal pq_init #TODO: use Vivian's init
     lw $a0, 0($sp)
     lw $a1, 4($sp)
+    add $sp, $sp, 8
     la $s4, frontier #s4: frontier pointer: 3600 words
     #be careful with this pointer!
     #set index
