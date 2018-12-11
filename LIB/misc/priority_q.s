@@ -18,8 +18,7 @@ pq_curr_len:    .word 1
 .text
 .globl pq_max_priority_child
 pq_max_priority_child:
-
-	sub	$sp, $sp, 44
+	sub	$sp, $sp, 40
     sw $t0, 0($sp)
     sw $t1, 4($sp)
     sw $t2, 8($sp)
@@ -29,17 +28,15 @@ pq_max_priority_child:
     sw $t6, 24($sp)
     sw $t7, 28($sp)
     sw $t8, 32($sp)
-    sw $t9, 36($sp)
-    sw $ra, 40($sp)
-
+    sw $ra, 36($sp)
 
 
     mul $t0, $a0, 2     # leftchild => $t0
     add $t1, $t0, 1     # rightchild => $t1
     la $t2, pq_heap     # &pq_heap
     la $t3, pq_curr_len
-    lw $t9, 0($t3)      # pq_curr_len
-    bge $t1, $t9, pq_max_priority_child_ret #right_child_id >= current_length
+    lw $t4, 0($t3)      # pq_curr_len
+    bge $t1, $t4, pq_max_priority_child_ret #right_child_id >= current_length
 
     mul $t3, $t1, 4     # right_child_id*4
     add $t3, $t3, $t2   # &heap[right_child_id]
@@ -68,15 +65,13 @@ pq_max_priority_child:
     lw $t6, 24($sp)
     lw $t7, 28($sp)
     lw $t8, 32($sp)
-    lw $t9, 36($sp)
-    lw $ra, 40($sp)
-    add	$sp, $sp, 44
+    lw $ra, 36($sp)
+    add	$sp, $sp, 40
 
     jr $ra
 
 pq_max_priority_child_ret:  #return left
     move $v0, $t0
-
 
     lw $t0, 0($sp)
     lw $t1, 4($sp)
@@ -87,10 +82,8 @@ pq_max_priority_child_ret:  #return left
     lw $t6, 24($sp)
     lw $t7, 28($sp)
     lw $t8, 32($sp)
-    lw $t9, 36($sp)
-    lw $ra, 40($sp)
-    add	$sp, $sp, 44
-
+    lw $ra, 36($sp)
+    add	$sp, $sp, 40
 
     jr $ra
 
@@ -114,7 +107,6 @@ pq_max_priority_child_ret:  #return left
 
 .globl pq_heapify_down
 pq_heapify_down:
-
     sub	$sp, $sp, 44
     sw $t0, 0($sp)
     sw $t1, 4($sp)
@@ -204,9 +196,6 @@ pq_heapify_up:
     sw $t9, 36($sp)
     sw $ra, 40($sp)
 
-
-
-
     beq $a0, 1, pq_heapify_up_ret
     la $t0, pq_heap     # &pq_heap
     div $t1, $a0, 2
@@ -234,8 +223,6 @@ pq_heapify_up:
     jal pq_heapify_up
 
 pq_heapify_up_ret:
-
-
     lw $t0, 0($sp)
     lw $t1, 4($sp)
     lw $t2, 8($sp)
@@ -251,7 +238,6 @@ pq_heapify_up_ret:
 
     jr $ra
 
-
 #====================================================================================================================
 
 # node_t* pq_pop(void) {
@@ -263,27 +249,20 @@ pq_heapify_up_ret:
 
 .globl pq_pop
 pq_pop:
-
-	sub	$sp, $sp, 44
+	sub	$sp, $sp, 24
     sw $t0, 0($sp)
     sw $t1, 4($sp)
     sw $t2, 8($sp)
     sw $t3, 12($sp)
     sw $t4, 16($sp)
-    sw $t5, 20($sp)
-    sw $t6, 24($sp)
-    sw $t7, 28($sp)
-    sw $t8, 32($sp)
-    sw $t9, 36($sp)
-    sw $ra, 40($sp)
-
+    sw $ra, 20($sp)
 
 
     la $t0, pq_heap     # &pq_heap
     la $t1, pq_curr_len # &pq_curr_len
     lw $t2, 0($t1)      # int curr_len
 
-    lw $t8, 4($t0)
+    lw $t4, 4($t0)
 
     add $t2, $t2, -1
     sw $t2, 0($t1)      #--current_length
@@ -295,21 +274,16 @@ pq_pop:
 
     li $a0, 1
     jal pq_heapify_down
+    move $v0, $t4
 
-    move $v0, $t8
-    
+
     lw $t0, 0($sp)
     lw $t1, 4($sp)
     lw $t2, 8($sp)
     lw $t3, 12($sp)
     lw $t4, 16($sp)
-    lw $t5, 20($sp)
-    lw $t6, 24($sp)
-    lw $t7, 28($sp)
-    lw $t8, 32($sp)
-    lw $t9, 36($sp)
-    lw $ra, 40($sp)
-    add	$sp, $sp, 44
+    lw $ra, 20($sp)
+    add	$sp, $sp, 24
     
     jr $ra
 
@@ -324,18 +298,12 @@ pq_pop:
 .globl pq_push
 pq_push:
 
-	sub	$sp, $sp, 44
+	sub	$sp, $sp, 20
     sw $t0, 0($sp)
     sw $t1, 4($sp)
     sw $t2, 8($sp)
     sw $t3, 12($sp)
-    sw $t4, 16($sp)
-    sw $t5, 20($sp)
-    sw $t6, 24($sp)
-    sw $t7, 28($sp)
-    sw $t8, 32($sp)
-    sw $t9, 36($sp)
-    sw $ra, 40($sp)
+    sw $ra, 16($sp)
 
     
     la $t0, pq_heap     # &pq_heap
@@ -349,41 +317,26 @@ pq_push:
     move $a0, $t2
     jal pq_heapify_up
 
-    add $t4, $t2, 1
-    sw $t4, 0($t1)      #++current_length
+    add $t2, $t2, 1
+    sw $t2, 0($t1)      #++current_length
 
 
     lw $t0, 0($sp)
     lw $t1, 4($sp)
     lw $t2, 8($sp)
     lw $t3, 12($sp)
-    lw $t4, 16($sp)
-    lw $t5, 20($sp)
-    lw $t6, 24($sp)
-    lw $t7, 28($sp)
-    lw $t8, 32($sp)
-    lw $t9, 36($sp)
-    lw $ra, 40($sp)
-    add	$sp, $sp, 44
+    lw $ra, 16($sp)
+    add	$sp, $sp, 20
     
     jr $ra
 
 #====================================================================================================================
 .globl pq_init
 pq_init:
-	sub	$sp, $sp, 44
+	sub	$sp, $sp, 12
     sw $t0, 0($sp)
     sw $t1, 4($sp)
-    sw $t2, 8($sp)
-    sw $t3, 12($sp)
-    sw $t4, 16($sp)
-    sw $t5, 20($sp)
-    sw $t6, 24($sp)
-    sw $t7, 28($sp)
-    sw $t8, 32($sp)
-    sw $t9, 36($sp)
-    sw $ra, 40($sp)
-
+    sw $ra, 8($sp)
 
 
     la $t0, pq_curr_len
@@ -393,15 +346,7 @@ pq_init:
 
     lw $t0, 0($sp)
     lw $t1, 4($sp)
-    lw $t2, 8($sp)
-    lw $t3, 12($sp)
-    lw $t4, 16($sp)
-    lw $t5, 20($sp)
-    lw $t6, 24($sp)
-    lw $t7, 28($sp)
-    lw $t8, 32($sp)
-    lw $t9, 36($sp)
-    lw $ra, 40($sp)
-    add	$sp, $sp, 44
+    lw $ra, 8($sp)
+    add	$sp, $sp, 12
 
     jr $ra
