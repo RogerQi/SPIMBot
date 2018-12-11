@@ -1,3 +1,4 @@
+.data 
 #static node_t* heap[900];
 pq_heap:        .word 0:900
 #static int current_length = 1;
@@ -14,8 +15,25 @@ pq_curr_len:    .word 1
 #         return right_child_id;
 #     return left_child_id;
 # }
-
+.text
+.globl pq_max_priority_child
 pq_max_priority_child:
+
+	sub	$sp, $sp, 44
+    sw $t0, 0($sp)
+    sw $t1, 4($sp)
+    sw $t2, 8($sp)
+    sw $t3, 12($sp)
+    sw $t4, 16($sp)
+    sw $t5, 20($sp)
+    sw $t6, 24($sp)
+    sw $t7, 28($sp)
+    sw $t8, 32($sp)
+    sw $t9, 36($sp)
+    sw $ra, 40($sp)
+
+
+
     mul $t0, $a0, 2     # leftchild => $t0
     add $t1, $t0, 1     # rightchild => $t1
     la $t2, pq_heap     # &pq_heap
@@ -39,11 +57,42 @@ pq_max_priority_child:
 
     bgt $t7, $t8, pq_max_priority_child_ret
     move $v0, $t1       # return right
-    jal $ra
+
+
+    lw $t0, 0($sp)
+    lw $t1, 4($sp)
+    lw $t2, 8($sp)
+    lw $t3, 12($sp)
+    lw $t4, 16($sp)
+    lw $t5, 20($sp)
+    lw $t6, 24($sp)
+    lw $t7, 28($sp)
+    lw $t8, 32($sp)
+    lw $t9, 36($sp)
+    lw $ra, 40($sp)
+    add	$sp, $sp, 44
+
+    jr $ra
 
 pq_max_priority_child_ret:  #return left
     move $v0, $t0
-    jal $ra
+
+
+    lw $t0, 0($sp)
+    lw $t1, 4($sp)
+    lw $t2, 8($sp)
+    lw $t3, 12($sp)
+    lw $t4, 16($sp)
+    lw $t5, 20($sp)
+    lw $t6, 24($sp)
+    lw $t7, 28($sp)
+    lw $t8, 32($sp)
+    lw $t9, 36($sp)
+    lw $ra, 40($sp)
+    add	$sp, $sp, 44
+
+
+    jr $ra
 
 
 #====================================================================================================================
@@ -63,8 +112,23 @@ pq_max_priority_child_ret:  #return left
 #     return left_child(cur_id) < current_length;
 # }
 
-
+.globl pq_heapify_down
 pq_heapify_down:
+
+    sub	$sp, $sp, 44
+    sw $t0, 0($sp)
+    sw $t1, 4($sp)
+    sw $t2, 8($sp)
+    sw $t3, 12($sp)
+    sw $t4, 16($sp)
+    sw $t5, 20($sp)
+    sw $t6, 24($sp)
+    sw $t7, 28($sp)
+    sw $t8, 32($sp)
+    sw $t9, 36($sp)
+    sw $ra, 40($sp)
+
+
     la $t0, pq_heap     # &pq_heap
     la $t1, pq_curr_len # &pq_curr_len
     lw $t2, 0($t1)      # int curr_len
@@ -97,7 +161,21 @@ pq_heapify_down:
     jal pq_heapify_down
 
 pq_heapify_down_ret:
-    jal $ra
+
+    lw $t0, 0($sp)
+    lw $t1, 4($sp)
+    lw $t2, 8($sp)
+    lw $t3, 12($sp)
+    lw $t4, 16($sp)
+    lw $t5, 20($sp)
+    lw $t6, 24($sp)
+    lw $t7, 28($sp)
+    lw $t8, 32($sp)
+    lw $t9, 36($sp)
+    lw $ra, 40($sp)
+    add	$sp, $sp, 44
+
+    jr $ra
 
 #====================================================================================================================
 
@@ -111,8 +189,24 @@ pq_heapify_down_ret:
 #     heapify_up(parent_id);
 # }
 
-
+.globl pq_heapify_up
 pq_heapify_up:
+	sub	$sp, $sp, 44
+    sw $t0, 0($sp)
+    sw $t1, 4($sp)
+    sw $t2, 8($sp)
+    sw $t3, 12($sp)
+    sw $t4, 16($sp)
+    sw $t5, 20($sp)
+    sw $t6, 24($sp)
+    sw $t7, 28($sp)
+    sw $t8, 32($sp)
+    sw $t9, 36($sp)
+    sw $ra, 40($sp)
+
+
+
+
     beq $a0, 1, pq_heapify_up_ret
     la $t0, pq_heap     # &pq_heap
     div $t1, $a0, 2
@@ -140,7 +234,22 @@ pq_heapify_up:
     jal pq_heapify_up
 
 pq_heapify_up_ret:
-    jal $ra
+
+
+    lw $t0, 0($sp)
+    lw $t1, 4($sp)
+    lw $t2, 8($sp)
+    lw $t3, 12($sp)
+    lw $t4, 16($sp)
+    lw $t5, 20($sp)
+    lw $t6, 24($sp)
+    lw $t7, 28($sp)
+    lw $t8, 32($sp)
+    lw $t9, 36($sp)
+    lw $ra, 40($sp)
+    add	$sp, $sp, 44
+
+    jr $ra
 
 
 #====================================================================================================================
@@ -152,13 +261,29 @@ pq_heapify_up_ret:
 #     return ret;
 # }
 
-
+.globl pq_pop
 pq_pop:
+
+	sub	$sp, $sp, 44
+    sw $t0, 0($sp)
+    sw $t1, 4($sp)
+    sw $t2, 8($sp)
+    sw $t3, 12($sp)
+    sw $t4, 16($sp)
+    sw $t5, 20($sp)
+    sw $t6, 24($sp)
+    sw $t7, 28($sp)
+    sw $t8, 32($sp)
+    sw $t9, 36($sp)
+    sw $ra, 40($sp)
+
+
+
     la $t0, pq_heap     # &pq_heap
     la $t1, pq_curr_len # &pq_curr_len
     lw $t2, 0($t1)      # int curr_len
 
-    lw $v0, 4($t0)
+    lw $t8, 4($t0)
 
     add $t2, $t2, -1
     sw $t2, 0($t1)      #--current_length
@@ -170,8 +295,23 @@ pq_pop:
 
     li $a0, 1
     jal pq_heapify_down
+
+    move $v0, $t8
     
-    jal $ra
+    lw $t0, 0($sp)
+    lw $t1, 4($sp)
+    lw $t2, 8($sp)
+    lw $t3, 12($sp)
+    lw $t4, 16($sp)
+    lw $t5, 20($sp)
+    lw $t6, 24($sp)
+    lw $t7, 28($sp)
+    lw $t8, 32($sp)
+    lw $t9, 36($sp)
+    lw $ra, 40($sp)
+    add	$sp, $sp, 44
+    
+    jr $ra
 
 
 #====================================================================================================================
@@ -181,8 +321,23 @@ pq_pop:
 #     ++current_length;
 # }
 
-
+.globl pq_push
 pq_push:
+
+	sub	$sp, $sp, 44
+    sw $t0, 0($sp)
+    sw $t1, 4($sp)
+    sw $t2, 8($sp)
+    sw $t3, 12($sp)
+    sw $t4, 16($sp)
+    sw $t5, 20($sp)
+    sw $t6, 24($sp)
+    sw $t7, 28($sp)
+    sw $t8, 32($sp)
+    sw $t9, 36($sp)
+    sw $ra, 40($sp)
+
+    
     la $t0, pq_heap     # &pq_heap
     la $t1, pq_curr_len # &pq_curr_len
     lw $t2, 0($t1)      # int curr_len
@@ -196,13 +351,57 @@ pq_push:
 
     add $t4, $t2, 1
     sw $t4, 0($t1)      #++current_length
+
+
+    lw $t0, 0($sp)
+    lw $t1, 4($sp)
+    lw $t2, 8($sp)
+    lw $t3, 12($sp)
+    lw $t4, 16($sp)
+    lw $t5, 20($sp)
+    lw $t6, 24($sp)
+    lw $t7, 28($sp)
+    lw $t8, 32($sp)
+    lw $t9, 36($sp)
+    lw $ra, 40($sp)
+    add	$sp, $sp, 44
     
-    jal $ra
+    jr $ra
 
 #====================================================================================================================
-
+.globl pq_init
 pq_init:
+	sub	$sp, $sp, 44
+    sw $t0, 0($sp)
+    sw $t1, 4($sp)
+    sw $t2, 8($sp)
+    sw $t3, 12($sp)
+    sw $t4, 16($sp)
+    sw $t5, 20($sp)
+    sw $t6, 24($sp)
+    sw $t7, 28($sp)
+    sw $t8, 32($sp)
+    sw $t9, 36($sp)
+    sw $ra, 40($sp)
+
+
+
     la $t0, pq_curr_len
     li $t1, 1
     sw $t1, 0($t0)
-    jal $ra
+    
+
+    lw $t0, 0($sp)
+    lw $t1, 4($sp)
+    lw $t2, 8($sp)
+    lw $t3, 12($sp)
+    lw $t4, 16($sp)
+    lw $t5, 20($sp)
+    lw $t6, 24($sp)
+    lw $t7, 28($sp)
+    lw $t8, 32($sp)
+    lw $t9, 36($sp)
+    lw $ra, 40($sp)
+    add	$sp, $sp, 44
+
+    jr $ra
