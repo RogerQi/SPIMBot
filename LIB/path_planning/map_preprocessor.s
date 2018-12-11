@@ -6,6 +6,7 @@ discovered_cell:
 .word 0:MAXIMUM_NODE_NUM
 
 .text
+#for initial run: set all walls to be open
 .globl map_preprocess_init
 map_preprocess_init:
     li $t0, 0 #t0 : i = 0
@@ -28,6 +29,12 @@ map_preprocess_init_loop:
 map_preprocess_init_end:
     jr $ra
 
+.globl custom_cell_iterative_preprocess
+custom_cell_iterative_preprocess:
+    #a0: raw_map from SPIMBot client
+    #t8: x, t9: y
+    j map_iterative_preprocess_true_true_process
+
 .globl map_iterative_preprocess
 map_iterative_preprocess:
     lw $t8, BOT_X($zero)
@@ -42,11 +49,19 @@ map_iterative_preprocess:
     slt $t0, $t9, 30
     xor $t0, $t0, $t1
     sub $t9, $t9, $t0 #t9: bot_y
-    #a0 raw_map
+
+map_iterative_preprocess_true_true_process:
+    #a0 raw_map, t8: center x, t9: center y
     la $a1, processed_map #a1: processed_map
     mul $t7, $t9, 30
     add $t7, $t7, $t8
     mul $t7, $t7, 4 #t7 center ptr offset
+    la $t1, discovered_cell
+    add $t1, $t1, $t7
+    lw $t0, 0($t1) #t0
+    beq $t0, 1, map_iterative_preprocess_end #already discovered! End.
+    li $t0, 1
+    sw $t0, 0($t1) #mark as discovered.
     add $a0, $a0, $t7 #raw_map center ptr
     add $a1, $a1, $t7 #processed_map center ptr
     lw $t0, 0($a0) #should be doable!

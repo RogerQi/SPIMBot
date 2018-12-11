@@ -48,6 +48,31 @@ refresh_pp_loop:
 refresh_pp_end:
     jr $ra
 
+.globl fill_weight_map_with_manhattan
+fill_weight_map_with_manhattan:
+    #a0: tar x, a1: tar y
+    la $t6, weight_mat
+    li $t5, 0 #t5: i
+
+fill_weight_map_with_manhattan_loop:
+    bge $t5, 900, fill_weight_map_with_manhattan_ret
+    div $t4, $t5, 30 #t4: y
+    mul $t3, $t4, 30
+    sub $t3, $t5, $t3 #t3: x
+    sub $t0, $t3, $a0 #x diff
+    sub $t1, $t4, $a1 #y diff
+    abs $t0, $t0
+    abs $t1, $t1
+    add $t0, $t0, $t1 #man dist
+    mul $t1, $t5, 4
+    add $t1, $t1, $t6
+    sw $t0, 0($t1)
+    add $t5, $t5, 1
+    j fill_weight_map_with_manhattan_loop
+
+fill_weight_map_with_manhattan_ret:
+    jr $ra
+
 # .globl map_preprocess
 # map_preprocess:
 #     # process raw map to bfs-friendly map
