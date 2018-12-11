@@ -12,6 +12,8 @@ ANGLE_CONTROL           = 0xffff0018
 
 BOT_X                   = 0xffff0020
 BOT_Y                   = 0xffff0024
+OTHER_BOT_X				      = 0xffff00a0
+OTHER_BOT_Y				      = 0xffff00a4
 
 TIMER                   = 0xffff001c
 

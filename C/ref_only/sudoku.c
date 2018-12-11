@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <assert.h>
 #include "boards.h"
+#include <stdbool.h>
+#include <time.h>
 
 const int ALL_VALUES = (1 << GRID_SQUARED) - 1;
 
@@ -208,10 +210,12 @@ bool board_failed(unsigned short board[GRID_SQUARED][GRID_SQUARED]) {
 }
 
 bool solve(unsigned short board[GRID_SQUARED][GRID_SQUARED]) {
+    int step = 0;
     bool changed;
     do {
         changed = rule1(board);
         changed |= rule2(board);
+        step ++;
     } while (changed);
 
     if (board_done(board)) {
@@ -221,8 +225,27 @@ bool solve(unsigned short board[GRID_SQUARED][GRID_SQUARED]) {
         printf("FAILED!\n");
         print_board_verbose(board);
     }
-    printf("\n");
+    printf("step:%d\n", step);
 }
+
+// int main() {
+//     unsigned short my_board[GRID_SQUARED][GRID_SQUARED];
+
+//     //   init_board(test_board4_init, my_board);
+//     //   print_board_mips(my_board);
+//     //   exit(0);
+
+//     // printf("EASY BOARD:\n");
+//     // init_board(easy_board_init, my_board);
+//     // bool solved = solve(my_board);
+
+//     // if (solved) {    // only do hard board if easy board worked
+//         printf("HARD BOARD:\n");
+//         init_board(hard_board_init, my_board);
+//         solve(my_board);
+//     // }
+//     return 0;
+// }
 
 int main() {
     unsigned short my_board[GRID_SQUARED][GRID_SQUARED];
@@ -231,14 +254,20 @@ int main() {
     //   print_board_mips(my_board);
     //   exit(0);
 
-    printf("EASY BOARD:\n");
-    init_board(easy_board_init, my_board);
-    bool solved = solve(my_board);
+    // printf("EASY BOARD:\n");
+    // init_board(easy_board_init, my_board);
+    // bool solved = solve(my_board);
 
-    if (solved) {    // only do hard board if easy board worked
+    // if (solved) {    // only do hard board if easy board worked
         printf("HARD BOARD:\n");
         init_board(hard_board_init, my_board);
+        clock_t start, end;
+        double cpu_time_used;
+        start = clock();
         solve(my_board);
-    }
+        end = clock();
+        cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
+        printf("time used: %f\n", cpu_time_used);
+    // }
     return 0;
 }

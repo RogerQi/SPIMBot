@@ -1,2 +1,0 @@
-.text
-# .globl greedy
