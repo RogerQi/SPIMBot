@@ -32,8 +32,7 @@ int test_pq(void) {
     return 0;
 }
 
-/*
-int main(void) {
+int test_pp(void) {
     maze_map my_map;
     my_map.map[0][0].s_open = 0;
     my_map.map[0][0].n_open = 0;
@@ -57,11 +56,9 @@ int main(void) {
     for (int i = 0; i < MAXIMUM_NODE_NUM; ++i)
         command_buffer[i] = -1;
 
-    int target_pt[2];
-    target_pt[0] = 19;
-    target_pt[1] = 2;
     // printf("Prepare to bfs\n");
     // bfs(&my_map, target_pt);
+    /*
     printf("Prepare to floodfill\n");
     make_weight();
     prv_target_pts[0] = 19;
@@ -85,17 +82,31 @@ int main(void) {
         }
         printf("\n");
     }
-    printf("Dumping command buffer.\n");
     plan_next_move(&my_map, target_pt);
+    */
+    int target_pt[2];
+    target_pt[0] = 19;
+    target_pt[1] = 2;
+    astar(&my_map, target_pt);
+    printf("Dumping command buffer.\n");
     int cnt = 0;
+    do {
+        printf("%d\n", command_buffer[cnt++]);
+    } while(command_buffer[cnt] != -1);
+    target_pt[0] = 29;
+    target_pt[1] = 29;
+    astar(&my_map, target_pt);
+    printf("Dumping command buffer.\n");
+    cnt = 0;
     do {
         printf("%d\n", command_buffer[cnt++]);
     } while(command_buffer[cnt] != -1);
 
     return 0;
-}*/
+}
 
 int main(void){
-    test_pq();
+    //test_pq();
+    test_pp();
     return 0;
 }

@@ -22,8 +22,9 @@ int manhattan_distance(int cur_x, int cur_y, int tar_x, int tar_y) {
 
 //note that when accessing, for example, current_map->map[i][j]
 //is equivalent to (word) current_map[i][j]
-/*
 void astar(maze_map* current_map, int* target_point) {
+    for (int i = 0; i < 900; ++i) visited_mark[i] = 0; //set all cells to be unvisited!
+    init(); //reset priority queue
     int target_x = target_point[0];
     int target_y = target_point[1];
 
@@ -36,13 +37,14 @@ void astar(maze_map* current_map, int* target_point) {
     frontier[0].g = 0;
     frontier[0].f = manhattan_distance(current_bot_x, current_bot_y, target_x, target_y);
     frontier[0].prv_node = 0; //null pointer
+    printf("index: %d\n", frontier[0].index);
     pq_push(&frontier[0]);
 
     while (1) {
         node_t* current_node = pq_pop(); //a ptr to some element in frontier
         int node_x = current_node->index % 30;
         int node_y = current_node->index / 30;
-        //printf("cur x: %d\ncur y: %d\n", node_x, node_y);
+        printf("cur x: %d\ncur y: %d\n", node_x, node_y);
         if (node_x == target_x && node_y == target_y) {
             //finished! Recurse and get traveled path
             node_t* cur_pos = current_node;
@@ -81,37 +83,50 @@ void astar(maze_map* current_map, int* target_point) {
             int next_pos = node_y * 30 + node_x + 1;
             //printf("E pos: %d\n", next_pos);
             if (next_pos / 30 == node_y && !(visited_mark[next_pos])) {
-                visited_mark[next_pos] = 1; //mark
-                queue[ava_spot_ptr++] = next_pos;
-                prv_pos[next_pos] = current_node;
+                ++frontier_ptr;
+                visited_mark[next_pos] = 1; //mark as visited
+                frontier[frontier_ptr].index = next_pos;
+                frontier[frontier_ptr].f = (node_x >= target_x)? current_node->f + 1 : current_node->f - 1; //heuristic
+                frontier[frontier_ptr].g = current_node->g + 1; //current cost
+                frontier[frontier_ptr].prv_node = current_node;
+                pq_push(&frontier[frontier_ptr]);
             }
         }
         if (current_map->map[node_y][node_x].w_open) {
             int next_pos = node_y* 30 + node_x - 1;
             if (next_pos / 30 == node_y && !(visited_mark[next_pos])) {
+                ++frontier_ptr;
                 visited_mark[next_pos] = 1;
-                queue[ava_spot_ptr++] = next_pos;
-                prv_pos[next_pos] = current_node;
+                frontier[frontier_ptr].index = next_pos;
+                frontier[frontier_ptr].f = (node_x <= target_x)? current_node->f + 1 : current_node->f - 1; //heuristic
+                frontier[frontier_ptr].g = current_node->g + 1; //current cost
+                frontier[frontier_ptr].prv_node = current_node;
+                pq_push(&frontier[frontier_ptr]);
             }
         }
         if (current_map->map[node_y][node_x].n_open) {
             int next_pos = node_y * 30 + node_x - 30;
             if (next_pos >= 0 && !(visited_mark[next_pos])) {
+                ++frontier_ptr;
                 visited_mark[next_pos] = 1;
-                queue[ava_spot_ptr++] = next_pos;
-                prv_pos[next_pos] = current_node;
+                frontier[frontier_ptr].index = next_pos;
+                frontier[frontier_ptr].f = (node_y <= target_y)? current_node->f + 1 : current_node->f - 1; //heuristic
+                frontier[frontier_ptr].g = current_node->g + 1; //current cost
+                frontier[frontier_ptr].prv_node = current_node;
+                pq_push(&frontier[frontier_ptr]);
             }
         }
         if (current_map->map[node_y][node_x].s_open) {
             int next_pos = node_y * 30 + node_x + 30;
             if (next_pos < MAXIMUM_NODE_NUM && !(visited_mark[next_pos])) {
+                ++frontier_ptr;
                 visited_mark[next_pos] = 1;
-                queue[ava_spot_ptr++] = next_pos;
-                prv_pos[next_pos] = current_node;
-                //printf("Setting prv_pos[%d] = %d\n", next_pos, current_node);
+                frontier[frontier_ptr].index = next_pos;
+                frontier[frontier_ptr].f = (node_y >= target_y)? current_node->f + 1 : current_node->f - 1; //heuristic
+                frontier[frontier_ptr].g = current_node->g + 1; //current cost
+                frontier[frontier_ptr].prv_node = current_node;
+                pq_push(&frontier[frontier_ptr]);
             }
         }
     }
 }
-
-*/

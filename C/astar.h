@@ -14,4 +14,6 @@ void pq_push(node_t* current_node);
 
 node_t* pq_pop(void);
 
+void init(void);
+
 #endif
