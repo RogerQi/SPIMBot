@@ -1,7 +1,38 @@
 #include <stdio.h>
 #include "path_planning.h"
 #include "make_map.h"
+#include "astar.h"
 
+
+int test_pq(void) {
+    node_t test_arr[900];
+    test_arr[0].index = 6;
+    test_arr[0].f = 5;
+    test_arr[0].g = 0;
+    test_arr[0].prv_node = NULL;
+    pq_push(&test_arr[0]);
+    test_arr[1].index = 13;
+    test_arr[1].f = 4;
+    test_arr[1].g = 2;
+    test_arr[1].prv_node = NULL;
+    pq_push(&test_arr[1]);
+    test_arr[2].index = 16;
+    test_arr[2].f = 5;
+    test_arr[2].g = 0;
+    test_arr[2].prv_node = NULL;
+    pq_push(&test_arr[2]);
+    test_arr[3].index = 42;
+    test_arr[3].f = 1;
+    test_arr[3].g = 1;
+    test_arr[3].prv_node = NULL;
+    pq_push(&test_arr[3]);
+    node_t* ret;
+    ret = pq_pop();
+    printf("Current pop node Index: %d\n", ret->index);
+    return 0;
+}
+
+/*
 int main(void) {
     maze_map my_map;
     my_map.map[0][0].s_open = 0;
@@ -61,5 +92,10 @@ int main(void) {
         printf("%d\n", command_buffer[cnt++]);
     } while(command_buffer[cnt] != -1);
 
+    return 0;
+}*/
+
+int main(void){
+    test_pq();
     return 0;
 }
