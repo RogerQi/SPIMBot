@@ -1,0 +1,208 @@
+#static node_t* heap[900];
+pq_heap:        .word 0:900
+#static int current_length = 1;
+pq_curr_len:    .word 1
+
+#====================================================================================================================
+
+# int max_priority_child(int cur_id) {
+#     int left_child_id = left_child(cur_id);
+#     int right_child_id = right_child(cur_id);
+#     if (right_child_id >= current_length)
+#         return left_child_id;
+#     if (heap[right_child_id]->f + heap[right_child_id]->g <= heap[left_child_id]->f + heap[left_child_id]->g)
+#         return right_child_id;
+#     return left_child_id;
+# }
+
+pq_max_priority_child:
+    mul $t0, $a0, 2     # leftchild => $t0
+    add $t1, $t0, 1     # rightchild => $t1
+    la $t2, pq_heap     # &pq_heap
+    la $t3, pq_curr_len
+    lw $t9, 0($t3)      # pq_curr_len
+    bge $t1, $t9, pq_max_priority_child_ret #right_child_id >= current_length
+
+    mul $t3, $t1, 4     # right_child_id*4
+    add $t3, $t3, $t2   # &heap[right_child_id]
+    lw $t4, 0($t3)      # heap[right_child_id]
+    lw $t5, 4($t4)      # heap[right_child_id]->f
+    lw $t6, 8($t4)     # heap[right_child_id]->g
+    add $t7, $t5, $t6   # heap[right_child_id]->f + heap[right_child_id]->g
+
+    mul $t3, $t0, 4     # left_child_id*4
+    add $t3, $t3, $t2   # &heap[left_child_id]
+    lw $t4, 0($t3)      # heap[left_child_id]
+    lw $t5, 4($t4)      # heap[left_child_id]->f
+    lw $t6, 8($t4)     # heap[left_child_id]->g
+    add $t8, $t5, $t6   # heap[left_child_id]->f + heap[left_child_id]->g
+
+    bgt $t7, $t8, pq_max_priority_child_ret
+    move $v0, $t1       # return right
+    jal $ra
+
+pq_max_priority_child_ret:  #return left
+    move $v0, $t0
+    jal $ra
+
+
+#====================================================================================================================
+
+# void heapify_down(int cur_id) {
+#     if (!has_a_child(cur_id)) //base case
+#         return;
+#     int highest_priority_child = max_priority_child(cur_id);
+#     if (heap[cur_id]->f + heap[cur_id]->g <= heap[highest_priority_child]->f + heap[highest_priority_child]->g) //base case; heap rule not violated
+#         return;
+#     //recursive case: heap rule violated
+#     //swap parent and high priority child
+#     swap_node(cur_id, highest_priority_child);
+#     heapify_down(highest_priority_child);
+# }
+# int has_a_child(int cur_id) {
+#     return left_child(cur_id) < current_length;
+# }
+
+
+pq_heapify_down:
+    la $t0, pq_heap     # &pq_heap
+    la $t1, pq_curr_len # &pq_curr_len
+    lw $t2, 0($t1)      # int curr_len
+        
+    mul $t3, $a0, 2     # leftchild => $t2
+    bge $t3, $t2, pq_heapify_down_ret
+
+    jal pq_max_priority_child   #highest_priority_child
+
+    mul $t3, $v0, 4     # highest_priority_child*4
+    add $t3, $t3, $t0   # &heap[highest_priority_child]
+    lw $t4, 0($t3)      # heap[highest_priority_child]
+    lw $t5, 4($t4)      # heap[highest_priority_child]->f
+    lw $t6, 8($t4)     # heap[highest_priority_child]->g
+    add $t8, $t5, $t6   # heap[highest_priority_child]->f + heap[highest_priority_child]->g
+
+    mul $t2, $a0, 4     # curr_id*4
+    add $t2, $t2, $t0   # &heap[curr_id]
+    lw $t9, 0($t2)      # heap[curr_id]
+    lw $t5, 4($t9)      # heap[curr_id]->f
+    lw $t6, 8($t9)     # heap[curr_id]->g
+    add $t7, $t5, $t6   # heap[curr_id]->f + heap[curr_id]->g
+
+    ble $t7, $t8, pq_heapify_down_ret
+
+    #swap nodes
+    sw $t9, 0($t3)       
+    sw $t4, 0($t2)
+    move $a0, $v0
+    jal pq_heapify_down
+
+pq_heapify_down_ret:
+    jal $ra
+
+#====================================================================================================================
+
+# void heapify_up(int cur_id) {
+#     if (cur_id == 1)
+#         return; //is root; base case
+#     int parent_id = parent(cur_id);
+#     if (heap[cur_id]->f + heap[cur_id]->g >= heap[parent_id]->f + heap[parent_id]->g)
+#         return;
+#     swap_node(cur_id, parent_id);
+#     heapify_up(parent_id);
+# }
+
+
+pq_heapify_up:
+    beq $a0, 1, pq_heapify_up_ret
+    la $t0, pq_heap     # &pq_heap
+    div $t1, $a0, 2
+
+    mul $t2, $a0, 4     # curr_id*4
+    add $t2, $t2, $t0   # &heap[curr_id]
+    lw $t9, 0($t2)      # heap[curr_id]
+    lw $t5, 4($t9)      # heap[curr_id]->f
+    lw $t6, 8($t9)     # heap[curr_id]->g
+    add $t7, $t5, $t6   # heap[curr_id]->f + heap[curr_id]->g
+
+    mul $t3, $t1, 4     # parent*4
+    add $t3, $t3, $t0   # &heap[parent]
+    lw $t4, 0($t3)      # heap[parent]
+    lw $t5, 4($t4)      # heap[parent]->f
+    lw $t6, 8($t4)     # heap[parent]->g
+    add $t8, $t5, $t6   # heap[parent]->f + heap[parent]->g
+    
+    bge $t7, $t8, pq_heapify_up_ret
+
+    #swap nodes
+    sw $t9, 0($t3)       
+    sw $t4, 0($t2)
+    move $a0, $t1
+    jal pq_heapify_up
+
+pq_heapify_up_ret:
+    jal $ra
+
+
+#====================================================================================================================
+
+# node_t* pq_pop(void) {
+#     node_t* ret = heap[1];
+#     heap[1] = heap[--current_length];
+#     heapify_down(1);
+#     return ret;
+# }
+
+
+pq_pop:
+    la $t0, pq_heap     # &pq_heap
+    la $t1, pq_curr_len # &pq_curr_len
+    lw $t2, 0($t1)      # int curr_len
+
+    lw $v0, 4($t0)
+
+    add $t2, $t2, -1
+    sw $t2, 0($t1)      #--current_length
+
+    mul $t2, $t2, 4
+    add $t2, $t2, $t0
+    lw  $t3, 0($t2)
+    sw  $t3, 4($t0) 
+
+    li $a0, 1
+    jal pq_heapify_down
+    
+    jal $ra
+
+
+#====================================================================================================================
+# void pq_push(node_t* current_node) {
+#     heap[current_length] = current_node;
+#     heapify_up(current_length);
+#     ++current_length;
+# }
+
+
+pq_push:
+    la $t0, pq_heap     # &pq_heap
+    la $t1, pq_curr_len # &pq_curr_len
+    lw $t2, 0($t1)      # int curr_len
+
+    mul $t3, $t2, 4
+    add $t3, $t3, $t0
+    sw  $a0, 0($t3)
+
+    move $a0, $t2
+    jal pq_heapify_up
+
+    add $t4, $t2, 1
+    sw $t4, 0($t1)      #++current_length
+    
+    jal $ra
+
+#====================================================================================================================
+
+pq_init:
+    la $t0, pq_curr_len
+    li $t1, 1
+    sw $t1, 0($t0)
+    jal $ra
