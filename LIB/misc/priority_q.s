@@ -18,38 +18,41 @@ pq_curr_len:    .word 1
 .text
 .globl pq_max_priority_child
 pq_max_priority_child:
-	sub	$sp, $sp, 28
+	sub	$sp, $sp, 40
     sw $t0, 0($sp)
     sw $t1, 4($sp)
     sw $t2, 8($sp)
     sw $t3, 12($sp)
     sw $t4, 16($sp)
     sw $t5, 20($sp)
-    sw $ra, 24($sp)
+    sw $t6, 24($sp)
+    sw $t7, 28($sp)
+    sw $t8, 32($sp)
+    sw $ra, 36($sp)
 
 
     mul $t0, $a0, 2     # leftchild => $t0
     add $t1, $t0, 1     # rightchild => $t1
     la $t2, pq_heap     # &pq_heap
     la $t3, pq_curr_len
-    lw $t3, 0($t3)      # pq_curr_len
-    bge $t1, $t3, pq_max_priority_child_ret #right_child_id >= current_length
+    lw $t4, 0($t3)      # pq_curr_len
+    bge $t1, $t4, pq_max_priority_child_ret #right_child_id >= current_length
 
     mul $t3, $t1, 4     # right_child_id*4
     add $t3, $t3, $t2   # &heap[right_child_id]
-    lw $t3, 0($t3)      # heap[right_child_id]
-    lw $t4, 4($t3)      # heap[right_child_id]->f
-    lw $t5, 8($t3)     # heap[right_child_id]->g
-    add $t4, $t4, $t5   # heap[right_child_id]->f + heap[right_child_id]->g
+    lw $t4, 0($t3)      # heap[right_child_id]
+    lw $t5, 4($t4)      # heap[right_child_id]->f
+    lw $t6, 8($t4)     # heap[right_child_id]->g
+    add $t7, $t5, $t6   # heap[right_child_id]->f + heap[right_child_id]->g
 
     mul $t3, $t0, 4     # left_child_id*4
     add $t3, $t3, $t2   # &heap[left_child_id]
-    lw $t3, 0($t3)      # heap[left_child_id]
-    lw $t0, 4($t3)      # heap[left_child_id]->f
-    lw $t5, 8($t3)     # heap[left_child_id]->g
-    add $t5, $t0, $t5   # heap[left_child_id]->f + heap[left_child_id]->g
+    lw $t4, 0($t3)      # heap[left_child_id]
+    lw $t5, 4($t4)      # heap[left_child_id]->f
+    lw $t6, 8($t4)     # heap[left_child_id]->g
+    add $t8, $t5, $t6   # heap[left_child_id]->f + heap[left_child_id]->g
 
-    bgt $t4, $t5, pq_max_priority_child_ret
+    bgt $t7, $t8, pq_max_priority_child_ret
     move $v0, $t1       # return right
 
 
@@ -59,8 +62,11 @@ pq_max_priority_child:
     lw $t3, 12($sp)
     lw $t4, 16($sp)
     lw $t5, 20($sp)
-    lw $ra, 24($sp)
-    add	$sp, $sp, 28
+    lw $t6, 24($sp)
+    lw $t7, 28($sp)
+    lw $t8, 32($sp)
+    lw $ra, 36($sp)
+    add	$sp, $sp, 40
 
     jr $ra
 
@@ -73,8 +79,11 @@ pq_max_priority_child_ret:  #return left
     lw $t3, 12($sp)
     lw $t4, 16($sp)
     lw $t5, 20($sp)
-    lw $ra, 24($sp)
-    add	$sp, $sp, 28
+    lw $t6, 24($sp)
+    lw $t7, 28($sp)
+    lw $t8, 32($sp)
+    lw $ra, 36($sp)
+    add	$sp, $sp, 40
 
     jr $ra
 
@@ -98,7 +107,7 @@ pq_max_priority_child_ret:  #return left
 
 .globl pq_heapify_down
 pq_heapify_down:
-    sub	$sp, $sp, 32
+    sub	$sp, $sp, 44
     sw $t0, 0($sp)
     sw $t1, 4($sp)
     sw $t2, 8($sp)
@@ -106,37 +115,40 @@ pq_heapify_down:
     sw $t4, 16($sp)
     sw $t5, 20($sp)
     sw $t6, 24($sp)
-    sw $ra, 28($sp)
+    sw $t7, 28($sp)
+    sw $t8, 32($sp)
+    sw $t9, 36($sp)
+    sw $ra, 40($sp)
 
 
     la $t0, pq_heap     # &pq_heap
     la $t1, pq_curr_len # &pq_curr_len
-    lw $t1, 0($t1)      # int curr_len
+    lw $t2, 0($t1)      # int curr_len
         
-    mul $t2, $a0, 2     # leftchild => $t2
-    bge $t2, $t1, pq_heapify_down_ret
+    mul $t3, $a0, 2     # leftchild => $t2
+    bge $t3, $t2, pq_heapify_down_ret
 
     jal pq_max_priority_child   #highest_priority_child
 
-    mul $t1, $v0, 4     # highest_priority_child*4
-    add $t1, $t1, $t0   # &heap[highest_priority_child]
-    lw $t2, 0($t1)      # heap[highest_priority_child]
-    lw $t3, 4($t2)      # heap[highest_priority_child]->f
-    lw $t4, 8($t2)     # heap[highest_priority_child]->g
-    add $t3, $t3, $t4   # heap[highest_priority_child]->f + heap[highest_priority_child]->g
+    mul $t3, $v0, 4     # highest_priority_child*4
+    add $t3, $t3, $t0   # &heap[highest_priority_child]
+    lw $t4, 0($t3)      # heap[highest_priority_child]
+    lw $t5, 4($t4)      # heap[highest_priority_child]->f
+    lw $t6, 8($t4)     # heap[highest_priority_child]->g
+    add $t8, $t5, $t6   # heap[highest_priority_child]->f + heap[highest_priority_child]->g
 
-    mul $t4, $a0, 4     # curr_id*4
-    add $t4, $t4, $t0   # &heap[curr_id]
-    lw $t5, 0($t4)      # heap[curr_id]
-    lw $t0, 4($t5)      # heap[curr_id]->f
-    lw $t6, 8($t5)     # heap[curr_id]->g
-    add $t0, $t0, $t6   # heap[curr_id]->f + heap[curr_id]->g
+    mul $t2, $a0, 4     # curr_id*4
+    add $t2, $t2, $t0   # &heap[curr_id]
+    lw $t9, 0($t2)      # heap[curr_id]
+    lw $t5, 4($t9)      # heap[curr_id]->f
+    lw $t6, 8($t9)     # heap[curr_id]->g
+    add $t7, $t5, $t6   # heap[curr_id]->f + heap[curr_id]->g
 
-    ble $t0, $t3, pq_heapify_down_ret
+    ble $t7, $t8, pq_heapify_down_ret
 
     #swap nodes
-    sw $t5, 0($t1)       
-    sw $t2, 0($t4)
+    sw $t9, 0($t3)       
+    sw $t4, 0($t2)
     move $a0, $v0
     jal pq_heapify_down
 
@@ -149,8 +161,11 @@ pq_heapify_down_ret:
     lw $t4, 16($sp)
     lw $t5, 20($sp)
     lw $t6, 24($sp)
-    lw $ra, 28($sp)
-    add	$sp, $sp, 32
+    lw $t7, 28($sp)
+    lw $t8, 32($sp)
+    lw $t9, 36($sp)
+    lw $ra, 40($sp)
+    add	$sp, $sp, 44
 
     jr $ra
 
@@ -168,10 +183,10 @@ pq_heapify_down_ret:
 
 .globl pq_heapify_up
 pq_heapify_up:
-    bne  $a0, 1, pq_heapify_up_cont
+    bne $a0, 1, pq_heapify_up_cont
     jr $ra
 pq_heapify_up_cont:
-    sub	$sp, $sp, 44
+	sub	$sp, $sp, 44
     sw $t0, 0($sp)
     sw $t1, 4($sp)
     sw $t2, 8($sp)
