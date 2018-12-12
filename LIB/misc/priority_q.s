@@ -168,6 +168,9 @@ pq_heapify_down_ret:
 
 .globl pq_heapify_up
 pq_heapify_up:
+    bne  $a0, 1, pq_heapify_up_cont
+    jr $ra
+pq_heapify_up_cont:
     sub	$sp, $sp, 44
     sw $t0, 0($sp)
     sw $t1, 4($sp)
@@ -180,8 +183,6 @@ pq_heapify_up:
     sw $t8, 32($sp)
     sw $t9, 36($sp)
     sw $ra, 40($sp)
-
-    beq $a0, 1, pq_heapify_up_ret
 
     la $t0, pq_heap     # &pq_heap
     div $t1, $a0, 2
