@@ -130,9 +130,9 @@ pq_heapify_down:
     lw $t5, 0($t4)      # heap[curr_id]
     lw $t0, 4($t5)      # heap[curr_id]->f
     lw $t6, 8($t5)     # heap[curr_id]->g
-    add $t5, $t0, $t6   # heap[curr_id]->f + heap[curr_id]->g
+    add $t0, $t0, $t6   # heap[curr_id]->f + heap[curr_id]->g
 
-    ble $t5, $t3, pq_heapify_down_ret
+    ble $t0, $t3, pq_heapify_down_ret
 
     #swap nodes
     sw $t5, 0($t1)       
