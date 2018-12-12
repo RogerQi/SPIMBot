@@ -1,0 +1,91 @@
+First of all, please excuse the brevity of this writeup since this is a last-minute writeup
+that we are writing three minutes prior to the submission deadline.
+
+We focused on exploring different path planning algorithm. Below is a list of algorithm that we implemented
+and tested on SpimBot:
+ - BFS
+ - Astar
+ - Floodfill (from a few IEEE paper)
+ - and their combination...
+
+
+--------------------------------------------
+Additional writeup committed after deadline
+--------------------------------------------
+Below is the Github link for our project! It has various README files located in different folders.
+Feel free to check them out:
+
+https://github.com/RogerQi/SPIMBot
+
+Official writeup:
+
+At the very beginning of this project, we noticed that the final submission is a single file so therefore,
+for the sake of coordination and iteration of bots, we first implemented a few help tools in Python in order
+to maintain the readibility of our code. We have an assembler that grabs relevant supporing files and
+one and only one corresponding main file; a map parser that parses debugging output from QtSpimBot into
+a make_map function in C that gives us a playground to mess with different path planning algorithm and how they
+come out; a weight parser (to aid in the development of flood fill algorithm); and a cycle analyzer to parse
+the profile.txt to tell us how many cycles a function take in order to locate the most time-consuming part
+for efficient and fast optimization of the code.
+
+When we were developing the path planning algorithm, there were a few interesting issues that we encountered:
+
+1. The map is entirely unexplored at the very beginning. Therefore we must have a mpa processor that updates
+the map as we go.
+
+2. Since the cells are gradually revealed as we explore through the maze, there is a tradeoff between the cost of the
+path (i.e. how optimized is the path) and the computation cost (at what frequency should we replan the path). Usually,
+this is solved by deploying a scheduler (like in OS) or by deploying a dispatcher that coordinates multiple threads
+to balance to calculation. However, the nature and the limitation of QtSpim does not allow us to do this.
+
+3. Tradeoff between puzzle solving and path planning.
+
+After a series of (painful) trials and error, we proposed the following solution to these problems:
+
+1. We implemented a map processor and realized that its calculation is far too expensive for us to use. Thus,
+we implemented an iterative processor instead. It maintains a processed map struct and updates only local cells
+that we ask it to update.
+
+3. (No, you are wrong. This is not a misplacement of sections. Rather, there are much we'd like to write about path planning so that we make it the last part)
+This is achieved by using a command buffer that has a stop sign. The SpimBot would move at, if it is moving, full velocity. Therefore there will be a timer interrupt
+for every 10000 cycles. However, it may or may not call the path plannar to replan the path. It would only replan the path if the step count is reached (for example,
+if we only plan 4 steps) or it hits a wall (which raises a bonk interrupt).
+
+-------------------------------------------------------
+2. Path planning and regrets about the Spimbot contest
+--------------------------------------------------------
+After a few experimentation with BFS and DFS, we deemed that A* might not be a good choice given the incomplete
+maze that requires exploration (which later turned out to be a wrong decision). Therefore, we did a lot of researches
+and found some interesting algorithms that are widely used in similar maze setup with no apriori information about the maze.
+
+[1] Dang H, Song J, Guo Q. An Efficient Algorithm for Robot Maze-Solving. 2010 Second International Conference on Intelligent Human-Machine Systems and Cybernetics (2010). doi: 10.1109/ihmsc.2010.119.
+[2] Mishra, S., & Bande, P. (2008). Maze Solving Algorithms for Micro Mouse. 2008 IEEE International Conference on Signal Image Technology and Internet Based Systems. doi:10.1109/sitis.2008.104
+[3] Tjiharjadi, S., Wijaya, M. C., & Setiawan, E. (2017). Optimization Maze Robot Using A* and Flood Fill Algorithm. International Journal of Mechanical Engineering and Robotics Research, 366-372. doi:10.18178/ijmerr.6.5.366-372
+
+Therefore, we decided to go for this algorithm. It was good -- only for early stage of the round. One of the reasons why we decided
+to use this algorithm was that it was not uncommon for top-tier teams in IEEE micromouse competition (a renowned competition with somewhat similar setup)
+to deploy this algorithm on their robots for path planning. However, we overlooked the fact that the maze in IEEE micromouse is HUGE comparing to
+what we have in SPIMBot compeition (an acylic 30x30 maze and reveals additional 7x7 cells when picking up a large treasure). We had a casual round
+with one of our friends who uses purely A* algorithm in his Spimbot and he had huge advantage in later cycles. The fact that this design decision
+was wrong really screwed up our plan and we spent last minute to implement A* algorithm to compensate this.
+
+
+Another regret we had was we didn't try to implement alternate sudoku solving algorithm. Rather, we put in too much efforts in researching about
+algorithms and experimenting them. Due to miscommunication with one of the TAs (he told us that we were not expected to implement more efficient
+sudoku algorithm), we didn't plan any time on improving sudoku, which would have given us a huge boost in our score (we spent a LOT of cycles waiting for keys on treasures.).
+
+However, and conclusively, though we had many regrets and we had a lot of unimplemented ideas, (All three of us are taking many upper-level classes so
+the amount of time we could dedicate to Spimbot was largely limited), Spimbot competition, after all, was a lot of fun. We really appreciate it that
+the TAs and our beloved professor, Geoffrey Herman, spent their time and made this a competition for us to explore MIPS and application of algorithms
+and data structures.
+
+Big ASCII winking-smiley face for TAs and Geoffrey Herman:
+     .-""""""-.
+   .'          '.
+  /   O    -=-   \
+ :                :
+ |                |
+ : ',          ,' :
+  \  '-......-'  /
+   '.          .'
+     '-......-'

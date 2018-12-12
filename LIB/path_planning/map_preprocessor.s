@@ -29,6 +29,113 @@ map_preprocess_init_loop:
 map_preprocess_init_end:
     jr $ra
 
+.globl update_map_around_large_treasure
+update_map_around_large_treasure:
+    jr $ra
+    sub $sp, $sp, 20
+    sw $ra, 0($sp)
+    sw $s0, 4($sp)
+    sw $s1, 8($sp)
+    sw $a0, 12($sp)
+    sw $a1, 16($sp)
+    #we may suppose robot is standing on large treasure now
+    la $a0, maze_map_buffer #a0: raw map
+    sw $a0, MAZE_MAP($zero) #request raw maze map
+    lw $t8, BOT_X($zero)
+    #handle edge case: if this is 300 the program may fail
+    div $t8, $t8, 10
+    slt $t0, $t8, 30
+    li $t1, 1
+    xor $t0, $t0, $t1
+    sub $s0, $t8, $t0 #s0: bot_x
+    lw $t9, BOT_Y($zero)
+    div $t9, $t9, 10
+    slt $t0, $t9, 30
+    xor $t0, $t0, $t1
+    sub $s1, $t9, $t0 #s1: bot_y
+    blt $s1, 3, update_map_around_large_treasure_lower
+    #update_upper
+    add $t8, $s0, $zero
+    sub $t9, $s1, 1
+    jal custom_cell_iterative_preprocess
+    blt $s0, 3, update_map_around_large_treasure_upper_right
+    #update upper left
+    sub $t9, $s1, 2
+    sub $t8, $s0, 2
+    jal custom_cell_iterative_preprocess
+    #fall to if upper right
+
+update_map_around_large_treasure_upper_right:
+    bgt $s0, 26, update_map_around_large_treasure_lower
+    #update upper right
+    sub $t9, $s1, 2
+    add $t8, $s0, 2
+    jal custom_cell_iterative_preprocess
+    #fall to if lower
+
+update_map_around_large_treasure_lower:
+    bgt $s1, 26, update_map_around_large_treasure_left
+    #update lower
+    add $t8, $s0, $zero
+    add $t9, $s1, 1
+    jal custom_cell_iterative_preprocess
+    blt $s0, 3, update_map_around_large_treasure_lower_right
+    #update lower left!
+    sub $t8, $s0, 2
+    add $t9, $s1, 2
+    jal custom_cell_iterative_preprocess
+    #fall to if lower right
+
+update_map_around_large_treasure_lower_right:
+    bgt $s0, 26, update_map_around_large_treasure_left
+    #update lower right
+    add $t9, $s1, 2
+    add $t8, $s0, 2
+    jal custom_cell_iterative_preprocess
+
+update_map_around_large_treasure_left:
+    blt $s0, 3, update_map_around_large_treasure_right
+    #update left
+    add $t9, $s1, $zero
+    sub $t8, $s0, 2
+    jal custom_cell_iterative_preprocess
+
+update_map_around_large_treasure_right:
+    bgt $s0, 26, update_map_around_large_treasure_ret
+    #update right
+    add $t9, $s1, $zero
+    add $t8, $s0, 2
+    jal custom_cell_iterative_preprocess
+    #fall to ret
+
+update_map_around_large_treasure_ret:
+    lw $ra, 0($sp)
+    lw $s0, 4($sp)
+    lw $s1, 8($sp)
+    lw $a0, 12($sp)
+    lw $a1, 16($sp)
+    add $sp, $sp, 20
+    jr $ra
+
+# if (y >= 3) {
+#     update_upper();
+#     if (x >= 3)
+#         update_upper_left();
+#     if (x <= 26)
+#         update_upper_right();
+# }
+# if (y <= 26) {
+#     update_lower();
+#     if (x >= 3)
+#         update_lower_left();
+#     if (x <= 26)
+#         update_lower_right();
+# }
+# if (x >= 3)
+#     update_left();
+# if (x <= 26)
+#     update_right();
+
 .globl custom_cell_iterative_preprocess
 custom_cell_iterative_preprocess:
     #a0: raw_map from SPIMBot client
@@ -49,6 +156,7 @@ map_iterative_preprocess:
     slt $t0, $t9, 30
     xor $t0, $t0, $t1
     sub $t9, $t9, $t0 #t9: bot_y
+    #fall to true process
 
 map_iterative_preprocess_true_true_process:
     #a0 raw_map, t8: center x, t9: center y

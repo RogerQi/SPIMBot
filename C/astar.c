@@ -24,7 +24,7 @@ int manhattan_distance(int cur_x, int cur_y, int tar_x, int tar_y) {
 //is equivalent to (word) current_map[i][j]
 void astar(maze_map* current_map, int* target_point) {
     for (int i = 0; i < 900; ++i) visited_mark[i] = 0; //set all cells to be unvisited!
-    init(); //reset priority queue
+    init(); //reset priority
     int target_x = target_point[0];
     int target_y = target_point[1];
 
@@ -37,6 +37,7 @@ void astar(maze_map* current_map, int* target_point) {
     frontier[0].g = 0;
     frontier[0].f = manhattan_distance(current_bot_x, current_bot_y, target_x, target_y);
     frontier[0].prv_node = 0; //null pointer
+    visited_mark[frontier[0].index] = 1;
     printf("index: %d\n", frontier[0].index);
     pq_push(&frontier[0]);
 

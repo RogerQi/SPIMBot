@@ -76,6 +76,7 @@ function_vector_table:
     .word map_iterative_preprocess
     .word am_i_on_treasure
     .word get_nearest_treasure
+    .word update_map_around_large_treasure
 
 .text
 main:
@@ -211,11 +212,11 @@ timer_interrupt_try_to_open:
     lw $t0, GET_KEYS($zero)
     #get needed key number
     #note that $v0 holds points of current treasure
-    la $t1, key_required_lut
-    mul $v0, $v0, 4
-    add $v0, $v0, $t1
-    lw $v0, 0($v0) #v0 - keys required to open
-    bge $t0, $v0, timer_interrupt_try_to_open_open
+    # la $t1, key_required_lut
+    # mul $v0, $v0, 4
+    # add $v0, $v0, $t1
+    # lw $v0, 0($v0) #v0 - keys required to open
+    bge $t0, 3, timer_interrupt_try_to_open_open
     #keys insufficient. Stall until we have enough keys
     j timer_interrupt_finish_up
 
@@ -227,6 +228,10 @@ timer_interrupt_try_to_open_open:
     la $t1, target_point_buffer
     sw $t0, 0($t1)
     sw $t0, 4($t1)
+    #update area around large treasure!
+    la $t0, function_vector_table
+    lw $t0, 16($t0)
+    jalr $t0 #update area around
     j timer_interrupt_plan_and_move
 
 timer_interrupt:

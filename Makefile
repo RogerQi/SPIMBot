@@ -23,6 +23,12 @@ alpha_navigator: qtspimbot_run
 beta_navigator: TARGET_MAIN_FILE = beta_navigator.s
 beta_navigator: qtspimbot_run
 
+astar_bot: TARGET_MAIN_FILE = astar_bot.s
+astar_bot: qtspimbot_run
+
+final_bot: TARGET_MAIN_FILE = final.s
+final_bot: qtspimbot_run
+
 turn_right_bot: TARGET_MAIN_FILE = turn_right.s
 turn_right_bot: qtspimbot_run
 
@@ -44,7 +50,7 @@ how:
 # Actual rule to make the targets
 qtspimbot_run:
 	python3 ./tool/assembler.py ${TARGET_MAIN_FILE}
-	QtSpimbot -file spimbot.s -puzzleseed 1221 -mapseed 233 -debug -prof_file profile.txt -maponly -run -exit_when_done #-tournament #-drawcycles 400
+	QtSpimbot -file spimbot.s -puzzleseed 1221 -mapseed 233 -debug -prof_file profile.txt -maponly -run -exit_when_done -tournament #
 
 parse_map_run:
 	python3 ./tool/map_parser.py > ./C/make_map.c

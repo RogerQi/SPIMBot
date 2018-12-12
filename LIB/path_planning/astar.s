@@ -23,9 +23,14 @@ astar_plan:
     jr $ra
 
 astar_ff_mix_plan:
-    sub $sp, $sp, 4
-    sw $ra, 0($sp)
+    lw $t0, TIMER($zero)
+    bge $t0, 3000000, astar_ff_mix_plan_astar
+    #use flood fill
+    j flood_fill_plan
 
+astar_ff_mix_plan_astar:
+    j astar_plan
+    #fall to ret
 
 .globl astar
 astar:

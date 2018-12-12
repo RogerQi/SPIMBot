@@ -51,6 +51,9 @@ refresh_pp_end:
 .globl fill_weight_map_with_manhattan
 fill_weight_map_with_manhattan:
     #a0: tar x, a1: tar y
+    #la $t5, start_flag
+    #li $t6, 1
+    #sw $t6, 0($t5)
     la $t6, weight_mat
     li $t5, 0 #t5: i
 
